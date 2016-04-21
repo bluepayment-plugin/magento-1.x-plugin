@@ -399,6 +399,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             }
             $orderPayment->setAdditionalInformation('bluepayment_state', $paymentStatus);
             $orderPayment->save();
+            $this->returnConfirmation($orderId, self::TRANSACTION_CONFIRMED);
         } catch (Exception $e) {
             Mage::logException($e);
         }
