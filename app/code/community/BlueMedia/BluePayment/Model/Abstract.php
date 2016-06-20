@@ -24,7 +24,7 @@
  */
 class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abstract {
 
-    private $_checkHashArray = [];
+    private $_checkHashArray = array();
 
     /**
      * Stałe statusów płatności
@@ -187,7 +187,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         if ($service_id != $response->serviceID)
             return false;
-        $this->_checkHashArray = [];
+        $this->_checkHashArray = array();
         $hash = (string) $response->hash;
         $this->_checkHashArray[] = (string) $response->serviceID;
 
