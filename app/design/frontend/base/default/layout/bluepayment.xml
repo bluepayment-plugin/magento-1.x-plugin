@@ -20,14 +20,32 @@
 <layout version="0.1.0">
     <bluepayment_processing_create>
         <reference name="root">
-            <action method="setTemplate"><template>bluepayment/empty.phtml</template></action>
+            <action method="setTemplate">
+                <template>bluepayment/empty.phtml</template>
+            </action>
             <block type="bluepayment/redirect" name="bluepayment_child" template="bluepayment/redirect.phtml" />
         </reference>
     </bluepayment_processing_create>
     <bluepayment_processing_back>
         <reference name="root">
-            <action method="setTemplate"><template>bluepayment/empty.phtml</template></action>
+            <action method="setTemplate">
+                <template>bluepayment/empty.phtml</template>
+            </action>
             <block type="core/template" name="bluepayment_child" template="bluepayment/back.phtml" />
         </reference>
     </bluepayment_processing_back>
+    
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addJs" ifconfig="payment/bluepayment/addjquery">
+                <script>bluepayment/jquery-1.10.0.min.noConflict.js</script>
+            </action>
+        </reference>
+    </checkout_onepage_index>
+    
+    <checkout_onepage_paymentmethod>
+        <reference name="root">   
+            <block type="bluepayment/payment_gateways" name="bluepayment_payment_gateways" template="bluepayment/gateways.phtml"/>   
+        </reference>   
+    </checkout_onepage_paymentmethod>
 </layout>

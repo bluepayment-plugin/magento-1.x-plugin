@@ -133,12 +133,19 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         // Klucz współdzielony
         $sharedKey = $this->getConfigData('shared_key');
+        
+        //Kanał płatności        
+        
+        $gatewayId = Mage::helper('bluepayment/gateways')->getQuoteGatewayId();
+        if (!$gatewayId){
+            $gatewayId = 0;
+        }
 
         // Adres email klienta
         $customerEmail = $order->getCustomerEmail();
 
         // Tablica danych z których wygenerować hash
-        $hashData = array($serviceId, $orderId, $amount, $customerEmail, $sharedKey);
+        $hashData = array($serviceId, $orderId, $amount, $gatewayId, $customerEmail, $sharedKey);
 
         // Klucz hash
         $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
@@ -148,6 +155,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'ServiceID' => $serviceId,
             'OrderID' => $orderId,
             'Amount' => $amount,
+            'GatewayID' => $gatewayId,
             'CustomerEmail' => $customerEmail,
             'Hash' => $hashLocal
         );

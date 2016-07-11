@@ -1,0 +1,97 @@
+
+
+
+
+<div class="p_method_bluepayment" id="p_method_bluepayment_gateway">
+    <?php $gatewaysList = $this->getGatewaysList() ?>
+    <?php $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo(); ?>
+    <ul class="bluepayment-options-list">
+        <?php foreach ($gatewaysList as $gateway): ?>
+            <?php $gatewayId = $gateway->getData('gateway_id'); ?>
+            <?php $gatewayName = $gateway->getData('gateway_name'); ?>
+            <li class="bluepayment-option">
+                <div class="bluepayment-img">
+                    <?php if ($showLogoFlag): ?>
+                        <img src="<?php echo $gateway->getData('gateway_logo_url'); ?>" alt="<?php echo $gatewayName; ?>">
+                    <?php endif; ?>
+                </div>
+                <div class="bluepayment-input">
+                    <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>" 
+                           type="radio" 
+                           value="<?php echo $gatewayId; ?>" 
+                           name="payment_method_bluepayment_gateway" 
+                           title="<?php echo $gatewayName; ?>"  
+                           required 
+                           class="validate-one-required-by-name"
+                           />
+                    <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
+                        <?php echo $gatewayName . ' [' . $gateway->getData('gateway_type') . ']'; ?>
+                    </label>
+
+                    <span> <?php $gateway->getData('gateway_description'); ?></span>
+                </div>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+<script>
+    //<![CDATA[
+    var $gateways = jQuery('#p_method_bluepayment_gateway');
+    jQuery(document).ready(function () {
+
+        $interval = setInterval(function () {
+            jQuery('#p_method_bluepayment_gateway').find('input:radio').each(function () {
+                jQuery(this).removeAttr('disabled');
+            });
+        }, 50);
+        setTimeout(function () {
+            clearInterval($interval);
+        }, 1000);
+
+        var $bluepaymentInput = jQuery('#p_method_bluepayment');
+        if ($bluepaymentInput.length) {
+            setDefauleDisplayGateways($bluepaymentInput);
+
+//            jQuery('.input [name="payment[method]"]').each.change(function () {
+//                showHideGateways();
+//            });
+
+            jQuery('input:radio[name="payment[method]"]').change(function () {
+                if (jQuery(this).val() === 'bluepayment') {
+                    showGateways();
+                } else {
+                    hideGateways();
+                }
+            });
+        }
+    });
+
+    function setDefauleDisplayGateways(input) {
+        if ($gateways.length) {
+            $gateways.find('input:radio').each(function () {
+                jQuery(this).prop('disabled', false);
+            });
+            if (input.is(':checked')) {
+                $gateways.show();
+            } else {
+                $gateways.hide();
+            }
+        }
+    }
+
+    function showGateways() {
+        if ($gateways.length) {
+            $gateways.find('input:radio').each(function () {
+                jQuery(this).prop('disabled', false);
+            });
+            $gateways.show();
+        }
+    }
+    function hideGateways() {
+        if ($gateways.length) {
+            $gateways.hide();
+        }
+    }
+
+    //]]>
+</script>

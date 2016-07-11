@@ -53,10 +53,6 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
             // Obiekt zamówienia
             $order = Mage::getModel('sales/order')->loadByIncrementId($sessionLastRealOrderSessionId);
 
-            // Jeśli zamówienie nie posiada numeru id, wyświetl wyjątek
-            if (!$order->getId()) {
-                Mage::log('Zamówienie bez identyfikatora');
-            }
 
             $statusWaitingPayment = Mage::getStoreConfig("payment/bluepayment/status_waiting_payment");
 
@@ -123,11 +119,9 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 if ($hash == $hashLocal) {
                     $this->_redirect('checkout/onepage/success', array('_secure' => true));
                 } else {
-                    Mage::log('Klucz autoryzacji transakcji jest nieprawidłowy');
                     $this->_redirect('checkout/onepage/failure', array('_secure' => true));
                 }
             } else {
-                Mage::log('Klucz autoryzacji transakcji nie istnieje');
                 $this->_redirect('checkout/onepage/failure', array('_secure' => true));
             }
         } catch (Mage_Core_Exception $e) {
