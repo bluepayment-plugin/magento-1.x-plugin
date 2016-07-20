@@ -144,21 +144,40 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         // Adres email klienta
         $customerEmail = $order->getCustomerEmail();
 
-        // Tablica danych z których wygenerować hash
-        $hashData = array($serviceId, $orderId, $amount, $gatewayId, $customerEmail, $sharedKey);
 
-        // Klucz hash
-        $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
 
-        // Tablica z parametrami do formularza
-        $params = array(
-            'ServiceID' => $serviceId,
-            'OrderID' => $orderId,
-            'Amount' => $amount,
-            'GatewayID' => $gatewayId,
-            'CustomerEmail' => $customerEmail,
-            'Hash' => $hashLocal
-        );
+        if($gatewayId === 0 || !Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()){
+            // Tablica danych z których wygenerować hash
+            $hashData = array($serviceId, $orderId, $amount, $customerEmail, $sharedKey);
+
+            // Klucz hash
+            $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
+
+            // Tablica z parametrami do formularza
+            $params = array(
+                'ServiceID' => $serviceId,
+                'OrderID' => $orderId,
+                'Amount' => $amount,
+                'CustomerEmail' => $customerEmail,
+                'Hash' => $hashLocal
+            );
+        }else{
+            // Tablica danych z których wygenerować hash
+            $hashData = array($serviceId, $orderId, $amount, $gatewayId, $customerEmail, $sharedKey);
+
+            // Klucz hash
+            $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
+
+            // Tablica z parametrami do formularza
+            $params = array(
+                'ServiceID' => $serviceId,
+                'OrderID' => $orderId,
+                'Amount' => $amount,
+                'GatewayID' => $gatewayId,
+                'CustomerEmail' => $customerEmail,
+                'Hash' => $hashLocal
+            );
+        }
 
         return $params;
     }

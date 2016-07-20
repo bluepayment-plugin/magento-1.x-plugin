@@ -1,7 +1,3 @@
-
-
-
-
 <div class="p_method_bluepayment" id="p_method_bluepayment_gateway">
     <?php $gatewaysList = $this->getGatewaysList() ?>
     <?php $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo(); ?>
@@ -12,18 +8,32 @@
             <li class="bluepayment-option">
                 <div class="bluepayment-img">
                     <?php if ($showLogoFlag): ?>
-                        <img src="<?php echo $gateway->getData('gateway_logo_url'); ?>" alt="<?php echo $gatewayName; ?>">
+                        <?php if ($gateway->getData('use_own_logo')): ?>
+
+                            <?php
+                            $logoPath = $gateway->getData('gateway_logo_path');
+                            if ($logoPath && $logoPath != ''):
+                                $ownLogoUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . $logoPath;
+                                ?>
+                                <img src="<?php echo $ownLogoUrl; ?>"
+                                     alt="<?php echo $gatewayName; ?>">
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <img src="<?php echo $gateway->getData('gateway_logo_url'); ?>"
+                                 alt="<?php echo $gatewayName; ?>">
+
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 <div class="bluepayment-input">
-                    <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>" 
-                           type="radio" 
-                           value="<?php echo $gatewayId; ?>" 
-                           name="payment_method_bluepayment_gateway" 
-                           title="<?php echo $gatewayName; ?>"  
-                           required 
+                    <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>"
+                           type="radio"
+                           value="<?php echo $gatewayId; ?>"
+                           name="payment_method_bluepayment_gateway"
+                           title="<?php echo $gatewayName; ?>"
+                           required
                            class="validate-one-required-by-name"
-                           />
+                    />
                     <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
                         <?php echo $gatewayName . ' [' . $gateway->getData('gateway_type') . ']'; ?>
                     </label>

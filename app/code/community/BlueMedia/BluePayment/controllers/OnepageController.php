@@ -16,9 +16,11 @@ class BlueMedia_BluePayment_OnepageController extends Mage_Checkout_OnepageContr
             if ($gatewayId){
                 Mage::helper('bluepayment/gateways')->setQuoteGatewayId($gatewayId);
             }else{
-                $result = array('error'=>'Nie wybrano kanału płatności!');
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return;
+                if (Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()){
+                    $result = array('error'=>'Nie wybrano kanału płatności!');
+                    $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                    return;
+                }
             }
         }
         

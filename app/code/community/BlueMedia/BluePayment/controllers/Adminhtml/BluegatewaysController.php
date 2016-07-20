@@ -1,13 +1,16 @@
 <?php
 
-class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminhtml_Controller_Action {
+class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminhtml_Controller_Action
+{
 
-    protected function _initAction() {
+    protected function _initAction()
+    {
         $this->loadLayout()->_setActiveMenu("bluepayment/bluegateways")->_addBreadcrumb(Mage::helper("adminhtml")->__("Bluegateways  Manager"), Mage::helper("adminhtml")->__("Bluegateways Manager"));
         return $this;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $this->_title($this->__("BluePayment"));
         $this->_title($this->__("Manager Bluegateways"));
 
@@ -15,21 +18,23 @@ class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminh
         $this->renderLayout();
     }
 
-    public function syncAction() {
+    public function syncAction()
+    {
         $session = Mage::getSingleton('core/session');
         $result = Mage::helper('bluepayment/gateways')->syncGateways();
 
-        if (isset($result['error'])){
+        if (isset($result['error'])) {
             $session->addError($result['error']);
-        }else{
+        } else {
             $session->addSuccess('Gateway list has been synchronized!');
-            
+
         }
         $this->_redirect('admin_bluepayment/adminhtml_bluegateways/index');
         return;
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $this->_title($this->__("BluePayment"));
         $this->_title($this->__("Bluegateways"));
         $this->_title($this->__("Edit Item"));
@@ -51,7 +56,8 @@ class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminh
         }
     }
 
-    public function newAction() {
+    public function newAction()
+    {
 
         $this->_title($this->__("BluePayment"));
         $this->_title($this->__("Bluegateways"));
@@ -81,62 +87,24 @@ class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminh
         $this->renderLayout();
     }
 
-    public function saveAction() {
 
+    public function saveAction()
+    {
         $post_data = $this->getRequest()->getPost();
-
-
         if ($post_data) {
-
             try {
-
-
                 //save image
                 try {
-
-                    if ((bool) $post_data['gateway_logo_path']['delete'] == 1) {
-
-                        $post_data['gateway_logo_path'] = '';
-                    } else {
-
-                        unset($post_data['gateway_logo_path']);
-
-                        if (isset($_FILES)) {
-
-                            if ($_FILES['gateway_logo_path']['name']) {
-
-                                if ($this->getRequest()->getParam("id")) {
-                                    $model = Mage::getModel("bluepayment/bluegateways")->load($this->getRequest()->getParam("id"));
-                                    if ($model->getData('gateway_logo_path')) {
-                                        $io = new Varien_Io_File();
-                                        $io->rm(Mage::getBaseDir('media') . DS . implode(DS, explode('/', $model->getData('gateway_logo_path'))));
-                                    }
-                                }
-                                $path = Mage::getBaseDir('media') . DS . 'bluepayment' . DS . 'bluegateways' . DS;
-                                $uploader = new Varien_File_Uploader('gateway_logo_path');
-                                $uploader->setAllowedExtensions(array('jpg', 'png', 'gif'));
-                                $uploader->setAllowRenameFiles(false);
-                                $uploader->setFilesDispersion(false);
-                                $destFile = $path . $_FILES['gateway_logo_path']['name'];
-                                $filename = $uploader->getNewFileName($destFile);
-                                $uploader->save($path, $filename);
-
-                                $post_data['gateway_logo_path'] = 'bluepayment/bluegateways/' . $filename;
-                            }
-                        }
-                    }
+                    Mage::helper('bluepayment/gateways')->_getFormImage($post_data, 'gateway_logo_path');
                 } catch (Exception $e) {
                     Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
                     $this->_redirect('*/*/edit', array('id' => $this->getRequest()->getParam('id')));
                     return;
                 }
-//save image
-
-
                 $model = Mage::getModel("bluepayment/bluegateways")
-                        ->addData($post_data)
-                        ->setId($this->getRequest()->getParam("id"))
-                        ->save();
+                    ->addData($post_data)
+                    ->setId($this->getRequest()->getParam("id"))
+                    ->save();
 
                 Mage::getSingleton("adminhtml/session")->addSuccess(Mage::helper("adminhtml")->__("Bluegateways was successfully saved"));
                 Mage::getSingleton("adminhtml/session")->setBluegatewaysData(false);
@@ -157,7 +125,8 @@ class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminh
         $this->_redirect("*/*/");
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         if ($this->getRequest()->getParam("id") > 0) {
             try {
                 $model = Mage::getModel("bluepayment/bluegateways");

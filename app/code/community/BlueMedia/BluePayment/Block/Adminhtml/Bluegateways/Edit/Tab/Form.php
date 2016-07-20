@@ -1,8 +1,10 @@
 <?php
 
-class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends Mage_Adminhtml_Block_Widget_Form {
+class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends Mage_Adminhtml_Block_Widget_Form
+{
 
-    protected function _prepareForm() {
+    protected function _prepareForm()
+    {
 
         $form = new Varien_Data_Form();
         $this->setForm($form);
@@ -34,7 +36,7 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'label' => Mage::helper('bluepayment')->__('Gateway Type'),
             'name' => 'gateway_type',
         ));
-        
+
         $fieldset->addField("gateway_description", "text", array(
             "label" => Mage::helper("bluepayment")->__("Gateway Description"),
             "name" => "gateway_description",
@@ -45,12 +47,12 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             "name" => "gateway_sort_order",
         ));
 
-        $fieldset->addField('gateway_logo_url', 'image', array(
+        $fieldset->addField('gateway_logo_url', 'text', array(
             'disabled' => true,
             'label' => Mage::helper('bluepayment')->__('Gateway Logo URL'),
             'name' => 'gateway_logo_url',
         ));
-        
+
         $fieldset->addField('use_own_logo', 'select', array(
             'label' => Mage::helper('bluepayment')->__('Use Own Logo'),
             'values' => BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid::getValueArray6(),
@@ -67,7 +69,6 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'name' => 'status_date',
         ));
 
-        
 
         if (Mage::getSingleton("adminhtml/session")->getBluegatewaysData()) {
             $form->setValues(Mage::getSingleton("adminhtml/session")->getBluegatewaysData());

@@ -78,8 +78,8 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid extends Mage_Admin
 
     static public function getOptionArray0() {
         $data_array = array();
-        $data_array[0] = 'NO';
-        $data_array[1] = 'YES';
+        $data_array[0] = 'DISABLED';
+        $data_array[1] = 'ENABLED';
         return($data_array);
     }
 
