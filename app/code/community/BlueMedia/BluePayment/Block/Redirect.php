@@ -23,19 +23,9 @@
  */
 class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
 {
-    public function getForm() {
+    public function getUrlWithParams(){
         $abstract_model = Mage::getModel('bluepayment/abstract');
-
-        $form = new Varien_Data_Form();
-        $form->setAction($abstract_model->getUrlGateway())
-                ->setId('bluepayment_checkout')
-                ->setName('bluepayment_checkout')
-                ->setMethod('GET')
-                ->setUseContainer(true);
-
-        foreach ($abstract_model->getFormRedirectFields($this->getOrder()) as $field => $value) {
-            $form->addField($field, 'hidden', array('name' => $field, 'value' => $value));
-        }
-        return $form->toHtml();
+        return $abstract_model->getUrlGateway() . '?' . 
+                http_build_query($abstract_model->getFormRedirectFields($this->getOrder()));
     }
 }
