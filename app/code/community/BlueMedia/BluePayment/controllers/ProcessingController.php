@@ -150,6 +150,7 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odkodowanie parametru transakcji
                 $base64transactions = base64_decode($paramTransactions);
                 // Odczytanie parametrów z xml-a
+                mail('tobiasz01@gmail.com','test magento.tobiaszkapusta.pl', $base64transactions);
                 $simpleXml = simplexml_load_string($base64transactions);
 
                 $abstract = Mage::getModel('bluepayment/abstract');

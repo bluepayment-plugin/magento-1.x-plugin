@@ -98,6 +98,23 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </addjquery>
+                        <auto_payments translate="label">
+                            <label>Automatic payments</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </auto_payments>
+                        <regulations_auto_payments translate="label">
+                            <label>Regulations for automatic payments</label>
+                            <frontend_type>file</frontend_type>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </regulations_auto_payments>
                     </fields>
                 </bluepayment>
             </groups>

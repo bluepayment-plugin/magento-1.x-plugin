@@ -1,6 +1,7 @@
 <div class="p_method_bluepayment" id="p_method_bluepayment_gateway">
     <?php $gatewaysList = $this->getGatewaysList() ?>
     <?php $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo(); ?>
+    <?php $autoPayment = Mage::helper('bluepayment/gateways')->showAutoPayments(); ?>
     <h4 style="padding-top: 20px; padding-left: 30px;">Wybierz bank:</h4>
     <ul class="bluepayment-options-list" style="margin-left: 30px;">
         <?php foreach ($gatewaysList as $gateway): ?>
@@ -34,10 +35,18 @@
 
                             <?php endif; ?>
                         <?php endif; ?>
-                        <?php echo $gatewayName . ' [' . $gateway->getData('gateway_type') . ']'; ?>
+                        <span style="line-height: 40px;">
+                            <?php echo $gatewayName . ' [' . $gateway->getData('gateway_type') . ']'; ?>
+                        </span>
                     </label>
 
                     <span> <?php $gateway->getData('gateway_description'); ?></span>
+                    <?php if($autoPayment && $gatewayId==1503 && Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+                        <label style="display: none; margin-left: 15px;" id="payment_method_bluepayment_auto_payment">
+                            <input type="checkbox" value="1" name="payment_method_bluepayment_auto_payment"/>
+                            Zapisz dane karty, aby w przyszłość dokonować transacji automatycznych. Jednoczenie akceptuje regulamin płatności automatycznych.
+                        </label>
+                    <?php endif; ?>
                 </div>
             </li>
         <?php endforeach; ?>
@@ -49,7 +58,7 @@
     jQuery(document).ready(function () {
 
         $interval = setInterval(function () {
-            jQuery('#p_method_bluepayment_gateway').find('input:radio').each(function () {
+            jQuery('#p_method_bluepayment_gateway').find('input').each(function () {
                 jQuery(this).removeAttr('disabled');
             });
         }, 50);
@@ -65,11 +74,20 @@
 //                showHideGateways();
 //            });
 
-            jQuery('input:radio[name="payment[method]"]').change(function () {
+            jQuery('input[name="payment[method]"]').change(function () {
                 if (jQuery(this).val() === 'bluepayment') {
                     showGateways();
                 } else {
                     hideGateways();
+                }
+            });
+            jQuery('input[type=radio][name=payment_method_bluepayment_gateway]').change(function() {
+                if (this.value == 1500) {
+                    jQuery('#payment_method_bluepayment_auto_payment').show();
+
+                }
+                else {
+                    jQuery('#payment_method_bluepayment_auto_payment').hide();
                 }
             });
         }
@@ -77,7 +95,7 @@
 
     function setDefauleDisplayGateways(input) {
         if ($gateways.length) {
-            $gateways.find('input:radio').each(function () {
+            $gateways.find('input[type="radio"]').each(function () {
                 jQuery(this).prop('disabled', false);
             });
             if (input.is(':checked')) {
@@ -90,7 +108,7 @@
 
     function showGateways() {
         if ($gateways.length) {
-            $gateways.find('input:radio').each(function () {
+            $gateways.find('input[type="radio"]').each(function () {
                 jQuery(this).prop('disabled', false);
             });
             $gateways.show();

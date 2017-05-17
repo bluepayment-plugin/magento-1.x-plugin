@@ -134,8 +134,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         // Klucz współdzielony
         $sharedKey = $this->getConfigData('shared_key');
         
-        //Kanał płatności        
-        
+        //Kanał płatności
         $gatewayId = Mage::helper('bluepayment/gateways')->getQuoteGatewayId();
         if (!$gatewayId){
             $gatewayId = 0;
@@ -144,40 +143,27 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         // Adres email klienta
         $customerEmail = $order->getCustomerEmail();
 
+        $params = array(
+            'ServiceID' => $serviceId,
+            'OrderID' => $orderId,
+            'Amount' => $amount,
+            'CustomerEmail' => $customerEmail,
+        );
 
-
-        if($gatewayId === 0 || !Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()){
-            // Tablica danych z których wygenerować hash
-            $hashData = array($serviceId, $orderId, $amount, $customerEmail, $sharedKey);
-
-            // Klucz hash
-            $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
-
-            // Tablica z parametrami do formularza
-            $params = array(
-                'ServiceID' => $serviceId,
-                'OrderID' => $orderId,
-                'Amount' => $amount,
-                'CustomerEmail' => $customerEmail,
-                'Hash' => $hashLocal
-            );
-        }else{
-            // Tablica danych z których wygenerować hash
-            $hashData = array($serviceId, $orderId, $amount, $gatewayId, $customerEmail, $sharedKey);
-
-            // Klucz hash
-            $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
-
-            // Tablica z parametrami do formularza
-            $params = array(
-                'ServiceID' => $serviceId,
-                'OrderID' => $orderId,
-                'Amount' => $amount,
-                'GatewayID' => $gatewayId,
-                'CustomerEmail' => $customerEmail,
-                'Hash' => $hashLocal
-            );
+        if(!($gatewayId === 0 || !Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive())){
+            $params['GatewayID'] = $gatewayId;
         }
+        if ($gatewayId === 1503) {
+            $params['RecurringAcceptanceState'] = 'INIT_WITH_PAYMENT';
+            $params['RecurringAction'] = 'MANUAL';
+        }
+        // Tablica danych z których wygenerować hash
+        $hashData = array_values($params);
+        $hashData[] = $sharedKey;
+
+        // Klucz hash
+        $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
+        $params['Hash'] = $hashLocal;
 
         return $params;
     }
@@ -412,7 +398,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                         if ($orderPaymentState != $paymentStatus) {
                             $transaction = $orderPayment->setTransactionId((string) $remoteId);
                             $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_FAILURE . ']')
-                                    ->registerCaptureNotification()
+                                    ->registerCaptureNotification($amount)
                                     ->save();
                             // Powiadomienie mailowe dla klienta
                             $order->setState($orderStatusErrorState, $statusErrorPayment, '', true)
