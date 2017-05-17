@@ -385,9 +385,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                             $transaction = $orderPayment->setTransactionId((string) $remoteId);
                             $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_PENDING . ']')
                                     ->save();
-                            // Powiadomienie mailowe dla klienta
                             $order->setState($orderStatusWaitingState, $statusWaitingPayment, '', true)
-                                    ->sendOrderUpdateEmail(true)
+                                    ->sendOrderUpdateEmail(false)
                                     ->save();
                         }
                         break;
@@ -400,10 +399,13 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                                 ->setIsTransactionApproved(true)
                                 ->setIsTransactionClosed(true)
                                 ->save();
-                        // Powiadomienie mailowe dla klienta
                         $order->setState($orderStatusAcceptState, $statusAcceptPayment, '', true)
-                                ->sendOrderUpdateEmail(true)
+                                ->sendOrderUpdateEmail(false)
                                 ->save();
+                        $make_invoice = $this->getConfigData('makeinvoice');
+                        if ($make_invoice) {
+                            $this->makeInvoiceFromOrder($order);
+                        }
                         break;
                     // Jeśli transakcja nie została zakończona poprawnie
                     case self::PAYMENT_STATUS_FAILURE:
@@ -414,7 +416,6 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                             $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_FAILURE . ']')
                                     ->registerCaptureNotification()
                                     ->save();
-                            // Powiadomienie mailowe dla klienta
                             $order->setState($orderStatusErrorState, $statusErrorPayment, '', true)
                                     ->sendOrderUpdateEmail(true)
                                     ->save();
@@ -427,6 +428,27 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $orderPayment->setAdditionalInformation('bluepayment_state', $paymentStatus);
             $orderPayment->save();
             $this->returnConfirmation($orderId, self::TRANSACTION_CONFIRMED);
+        } catch (Exception $e) {
+            Mage::logException($e);
+        }
+    }
+
+    private function makeInvoiceFromOrder($order)
+    {
+        try {
+            if ($order->canInvoice()) {
+                $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
+                if ($invoice->getTotalQty()) {
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+                    $invoice->register();
+                    $transactionSave = Mage::getModel('core/resource_transaction')
+                        ->addObject($invoice)
+                        ->addObject($invoice->getOrder());
+                    $transactionSave->save();
+                    $invoice->getOrder()->addStatusHistoryComment('Created invoice', true);
+                    $invoice->sendEmail(true, '');
+                }
+            }
         } catch (Exception $e) {
             Mage::logException($e);
         }

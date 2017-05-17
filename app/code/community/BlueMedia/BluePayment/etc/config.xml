@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.4.3</version>
+            <version>1.4.4</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
@@ -188,6 +188,7 @@
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
                 <addjquery>1</addjquery>
+                <makeinvoice>0</makeinvoice>
             </bluepayment>            
         </payment>
     </default>
