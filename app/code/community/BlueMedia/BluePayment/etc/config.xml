@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.4.4</version>
+            <version>1.5.0</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
@@ -27,6 +27,9 @@
                     <bluegateways>
                         <table>blue_gateways</table>
                     </bluegateways>
+                    <bluecards>
+                        <table>blue_cards</table>
+                    </bluecards>
                 </entities>
             </bluepayment_mysql4>
         </models>
@@ -187,6 +190,7 @@
                 <prod_address_gateways_url>https://pay.bm.pl/paywayList</prod_address_gateways_url>
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
+                <autopay_gateway>1503</autopay_gateway>
                 <addjquery>1</addjquery>
             </bluepayment>            
         </payment>

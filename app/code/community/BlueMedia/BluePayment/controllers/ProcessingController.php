@@ -143,6 +143,8 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
 
             // Jeśli parametr 'transactions' istnieje w tablicy $params,
             // wykonaj operacje zmiany statusu płatności zamówienia
+            mail('tobiasz01@gmail.com','test magento.tobiaszkapusta.pl', json_encode($params));
+
             if (array_key_exists('transactions', $params)) {
                 // Zakodowany parametr transakcje
                 $paramTransactions = $params['transactions'];
@@ -150,9 +152,14 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odkodowanie parametru transakcji
                 $base64transactions = base64_decode($paramTransactions);
                 // Odczytanie parametrów z xml-a
-                mail('tobiasz01@gmail.com','test magento.tobiaszkapusta.pl', $base64transactions);
                 $simpleXml = simplexml_load_string($base64transactions);
 
+                $abstract = Mage::getModel('bluepayment/abstract');
+                $abstract->processStatusPayment($simpleXml);
+            } else if (array_key_exists('recurring', $params)) {
+                $paramRecurring = $params['recurring'];
+                $base64recurring = base64_decode($paramRecurring);
+                $simpleXml = simplexml_load_string($base64recurring);
                 $abstract = Mage::getModel('bluepayment/abstract');
                 $abstract->processStatusPayment($simpleXml);
             }

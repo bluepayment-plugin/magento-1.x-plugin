@@ -177,6 +177,11 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function getOneClickGatewayId()
+    {
+        return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
+    }
+
     /**
      * save uploaded image in the post data
      *

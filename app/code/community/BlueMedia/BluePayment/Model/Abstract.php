@@ -89,6 +89,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      */
     protected $_isInitializeNeeded = true;
 
+    protected $_orderParams = array('ServiceID', 'OrderID', 'Amount', 'GatewayID',
+        'CustomerEmail', 'RecurringAcceptanceState', 'RecurringAction', 'ScreenType');
+
     /**
      * Zwraca adres url kontrolera do przekierowania po potwierdzeniu zamówienia
      * 
@@ -133,8 +136,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         // Klucz współdzielony
         $sharedKey = $this->getConfigData('shared_key');
-        
+
         //Kanał płatności
+
         $gatewayId = Mage::helper('bluepayment/gateways')->getQuoteGatewayId();
         if (!$gatewayId){
             $gatewayId = 0;
@@ -150,22 +154,36 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'CustomerEmail' => $customerEmail,
         );
 
-        if(!($gatewayId === 0 || !Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive())){
+        if($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()){
+
             $params['GatewayID'] = $gatewayId;
+
+            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/autopay_gateway")) {
+                $params['RecurringAcceptanceState'] = 'ACCEPTED';
+                $params['RecurringAction'] = 'INIT_WITH_PAYMENT';
+                $params['ScreenType'] = 'IFRAME';
+            }
+
         }
-        if ($gatewayId === 1503) {
-            $params['RecurringAcceptanceState'] = 'INIT_WITH_PAYMENT';
-            $params['RecurringAction'] = 'MANUAL';
-        }
-        // Tablica danych z których wygenerować hash
+
+        $params = $this->_sortParams($params);
         $hashData = array_values($params);
         $hashData[] = $sharedKey;
-
-        // Klucz hash
-        $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
-        $params['Hash'] = $hashLocal;
+        $params['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
 
         return $params;
+    }
+
+    function _sortParams($params)
+    {
+        $ordered = array();
+        foreach ($this->_orderParams as $value) {
+            if (array_key_exists($value, $params)) {
+                $ordered[$value] = $params[$value];
+                unset($params[$value]);
+            }
+        }
+        return $ordered + $params;
     }
 
     /**
@@ -176,8 +194,13 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param string $hash
      */
     public function processStatusPayment($response) {
-        if ($this->_validAllTransaction($response)) {
-            $transaction_xml = $response->transactions->transaction;
+        if ($this->_validAll($response)) {
+            if (isset($response->transactions)){
+                $transaction_xml = $response->transactions->transaction;
+            } else {
+                $this->saveCardData($response);
+                $transaction_xml = $response->transaction;
+            }
             // Aktualizacja statusu zamówienia i transakcji
             $this->updateStatusTransactionAndOrder($transaction_xml);
         }
@@ -188,7 +211,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param XML $response
      * @return boolen 
      */
-    public function _validAllTransaction($response) {
+    public function _validAll($response) {
 
         $service_id = $this->getConfigData('service_id');
         // Klucz współdzielony
@@ -202,11 +225,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             return false;
         $this->_checkHashArray = array();
         $hash = (string) $response->hash;
-        $this->_checkHashArray[] = (string) $response->serviceID;
+        $response->hash = null;
 
-        foreach ($response->transactions->transaction as $trans) {
-            $this->_checkInList($trans);
-        }
+        $this->_checkInList($response);
         $this->_checkHashArray[] = $shared_key;
         return hash($algorithm, implode($separator, $this->_checkHashArray)) == $hash;
     }
@@ -415,6 +436,26 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $this->returnConfirmation($orderId, self::TRANSACTION_CONFIRMED);
         } catch (Exception $e) {
             Mage::logException($e);
+        }
+    }
+
+    function saveCardData($data){
+        $orderId = $data->transaction->orderID;
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+        $customer_id = $order->getData('customer_id');
+        if ($customer_id){
+            $cardData = $data->cardData;
+            $blueCard = Mage::getModel('bluepayment/bluecards')->getCollection()
+                ->addFieldToFilter('card_index', (int)$cardData->index)->getFirstItem();
+            $blueCard->setData('card_index', (int)$cardData->index);
+            $blueCard->setData('customer_id', $customer_id);
+            $blueCard->setData('validity_year', $cardData->validityYear);
+            $blueCard->setData('validity_month', $cardData->validityMonth);
+            $blueCard->setData('issuer', $cardData->issuer);
+            $blueCard->setData('mask', $cardData->mask);
+            $blueCard->setData('client_hash', Mage::getModel('core/encryption')
+                ->encrypt($data->recurringData->clientHash));
+            $blueCard->save();
         }
     }
 
