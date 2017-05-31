@@ -76,6 +76,10 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfig("payment/bluepayment/checkout_gateways_active");
     }
+    public function getRegFileUrl()
+    {
+        return Mage::getStoreConfig("payment/bluepayment/regulations_auto_payments");
+    }
 
     private function saveGateways($gatewayList)
     {
@@ -128,7 +132,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return $existingGateways;
     }
 
-    private function randomString($length)
+    public function randomString($length)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randstring = '';
@@ -157,6 +161,20 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         $gatewayId = Mage::getSingleton('checkout/session')->getQuoteGatewayId();
         if ($gatewayId) {
             return $gatewayId;
+        }
+        return false;
+    }
+
+    public function setQuoteCardIndex($cardIndex)
+    {
+        Mage::getSingleton('checkout/session')->setQuoteCardIndex($cardIndex);
+    }
+
+    public function getQuoteCardIndex()
+    {
+        $cardIndex = Mage::getSingleton('checkout/session')->getQuoteCardIndex();
+        if ($cardIndex) {
+            return $cardIndex;
         }
         return false;
     }

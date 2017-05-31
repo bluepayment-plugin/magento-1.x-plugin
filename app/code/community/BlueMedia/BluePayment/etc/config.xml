@@ -186,8 +186,12 @@
                 <allowspecific>0</allowspecific>
                 <test_address_url>https://pay-accept.bm.pl/payment</test_address_url>
                 <prod_address_url>https://pay.bm.pl/payment</prod_address_url>
+
                 <test_address_gateways_url>https://pay-accept.bm.pl/paywayList</test_address_gateways_url>
                 <prod_address_gateways_url>https://pay.bm.pl/paywayList</prod_address_gateways_url>
+
+                <test_address_delete_card_url>https://pay-accept.bm.pl/deactivate_recurring</test_address_delete_card_url>
+                <prod_address_delete_card_url>https://pay.bm.pl/deactivate_recurring</prod_address_delete_card_url>
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
                 <autopay_gateway>1503</autopay_gateway>

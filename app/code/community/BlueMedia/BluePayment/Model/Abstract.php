@@ -2,14 +2,14 @@
 
 /**
  * BlueMedia_BluePayment extension
- * 
+ *
  * NOTICE OF LICENSE
- * 
+ *
  * This source file is subject to the MIT License
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/mit-license.php
- * 
+ *
  * @category       BlueMedia
  * @package        BlueMedia_BluePayment
  * @copyright      Copyright (c) 2015
@@ -22,7 +22,8 @@
  * @category    BlueMedia
  * @package     BlueMedia_BluePayment
  */
-class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abstract {
+class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abstract
+{
 
     private $_checkHashArray = array();
 
@@ -48,65 +49,67 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
     /**
      * Blok z formularza płatności
-     * 
+     *
      * @var string
      */
     protected $_formBlockType = 'bluepayment/form';
 
     /**
-     * Czy ta opcja płatności może być pokazywana na stronie 
+     * Czy ta opcja płatności może być pokazywana na stronie
      * płatności w zakupach typu 'checkout' ?
-     * 
+     *
      * @var boolean
      */
     protected $_canUseCheckout = true;
 
     /**
      * Czy stosować tą metodę płatności dla opcji multi-dostaw ?
-     * 
+     *
      * @var boolean
      */
     protected $_canUseForMultishipping = false;
 
     /**
      * Czy ta metoda płatności jest bramką (online auth/charge) ?
-     * 
+     *
      * @var boolean
      */
     protected $_isGateway = false;
 
     /**
      * Możliwość użycia formy płatności z panelu administracyjnego
-     * 
+     *
      * @var boolean
      */
     protected $_canUseInternal = false;
 
     /**
      * Czy wymagana jest inicjalizacja ?
-     * 
+     *
      * @var boolean
      */
     protected $_isInitializeNeeded = true;
 
     protected $_orderParams = array('ServiceID', 'OrderID', 'Amount', 'GatewayID',
-        'CustomerEmail', 'RecurringAcceptanceState', 'RecurringAction', 'ScreenType');
+        'CustomerEmail', 'CustomerIP', 'RecurringAcceptanceState', 'RecurringAction', 'ClientHash', 'ScreenType');
 
     /**
      * Zwraca adres url kontrolera do przekierowania po potwierdzeniu zamówienia
-     * 
+     *
      * @return string
      */
-    public function getOrderPlaceRedirectUrl() {
+    public function getOrderPlaceRedirectUrl()
+    {
         return Mage::getUrl('bluepayment/processing/create', array('_secure' => true));
     }
 
     /**
      * Zwraca adres bramki
-     * 
+     *
      * @return string
      */
-    public function getUrlGateway() {
+    public function getUrlGateway()
+    {
         // Aktywny tryb usługi
         $mode = $this->getConfigData('test_mode');
 
@@ -123,7 +126,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      *
      * @return array
      */
-    public function getFormRedirectFields($order) {
+    public function getFormRedirectFields($order)
+    {
         // Id zamówienia
         $orderId = $order->getRealOrderId();
 
@@ -140,7 +144,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         //Kanał płatności
 
         $gatewayId = Mage::helper('bluepayment/gateways')->getQuoteGatewayId();
-        if (!$gatewayId){
+        if (!$gatewayId) {
             $gatewayId = 0;
         }
 
@@ -154,14 +158,26 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'CustomerEmail' => $customerEmail,
         );
 
-        if($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()){
+        if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
 
             $params['GatewayID'] = $gatewayId;
 
-            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/autopay_gateway")) {
-                $params['RecurringAcceptanceState'] = 'ACCEPTED';
-                $params['RecurringAction'] = 'INIT_WITH_PAYMENT';
-                $params['ScreenType'] = 'IFRAME';
+            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/autopay_gateway") && Mage::getSingleton('customer/session')->isLoggedIn()) {
+                $card_index = Mage::helper('bluepayment/gateways')->getQuoteCardIndex();
+                $customerData = Mage::getSingleton('customer/session')->getCustomer();
+                $card = Mage::getModel('bluepayment/bluecards')->getCollection()
+                    ->addFieldToFilter('customer_id', $customerData->getId())
+                    ->addFieldToFilter('card_index', $card_index)->getFirstItem();
+                if ($card_index == -1 || !$card) {
+                    $params['RecurringAcceptanceState'] = 'ACCEPTED';
+                    $params['RecurringAction'] = 'INIT_WITH_PAYMENT';
+//                    $params['ScreenType'] = 'IFRAME';
+                } else {
+                    $params['CustomerIP'] = $this->get_client_ip();
+                    $params['RecurringAction'] = 'MANUAL';
+                    $params['ClientHash'] = Mage::getModel('core/encryption')
+                        ->decrypt($card->getData('client_hash'));
+                }
             }
 
         }
@@ -170,7 +186,6 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $hashData = array_values($params);
         $hashData[] = $sharedKey;
         $params['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
-
         return $params;
     }
 
@@ -193,25 +208,33 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param array $transactions
      * @param string $hash
      */
-    public function processStatusPayment($response) {
+    public function processStatusPayment($response)
+    {
         if ($this->_validAll($response)) {
-            if (isset($response->transactions)){
-                $transaction_xml = $response->transactions->transaction;
-            } else {
-                $this->saveCardData($response);
-                $transaction_xml = $response->transaction;
+            switch ($response->getName()) {
+                case 'recurringActivation':
+                    $this->saveCardData($response);
+                    break;
+                case 'recurringDeactivation':
+                    $this->deleteCardData($response);
+                    break;
+                case 'transactionList';
+                    $transaction_xml = $response->transactions->transaction;
+                    $this->updateStatusTransactionAndOrder($transaction_xml);
+                    break;
+                default:
+                    break;
             }
-            // Aktualizacja statusu zamówienia i transakcji
-            $this->updateStatusTransactionAndOrder($transaction_xml);
         }
     }
 
     /**
      * Waliduje zgodność otrzymanego XML'a
      * @param XML $response
-     * @return boolen 
+     * @return boolen
      */
-    public function _validAll($response) {
+    public function _validAll($response)
+    {
 
         $service_id = $this->getConfigData('service_id');
         // Klucz współdzielony
@@ -224,7 +247,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         if ($service_id != $response->serviceID)
             return false;
         $this->_checkHashArray = array();
-        $hash = (string) $response->hash;
+        $hash = (string)$response->hash;
         $response->hash = null;
 
         $this->_checkInList($response);
@@ -232,8 +255,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         return hash($algorithm, implode($separator, $this->_checkHashArray)) == $hash;
     }
 
-    private function _checkInList($list) {
-        foreach ((array) $list as $row) {
+    private function _checkInList($list)
+    {
+        foreach ((array)$list as $row) {
             if (is_object($row)) {
                 $this->_checkInList($row);
             } else {
@@ -249,7 +273,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      *
      * @return boolean
      */
-    public function isOrderCompleted($order) {
+    public function isOrderCompleted($order)
+    {
         $status = $order->getStatus();
         $stateOrderTab = array(
             Mage_Sales_Model_Order::STATE_CLOSED,
@@ -268,7 +293,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      *
      * @return XML
      */
-    protected function returnConfirmation($orderId, $confirmation) {
+    protected function returnConfirmation($orderId, $confirmation)
+    {
         // Id serwisu partnera
         $serviceId = $this->getConfigData('service_id');
 
@@ -314,7 +340,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param $transaction
      * @throws Exception
      */
-    protected function updateStatusTransactionAndOrder($transaction) {
+    protected function updateStatusTransactionAndOrder($transaction)
+    {
         // Status płatności
         $paymentStatus = $transaction->paymentStatus;
 
@@ -379,7 +406,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $statusErrorPayment = $order->getConfig()->getStateDefaultStatus(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW);
         }
 
-        $paymentStatus = (string) $paymentStatus;
+        $paymentStatus = (string)$paymentStatus;
 
         try {
             // Jeśli zamówienie jest otwarte i status płatności zamówienia jest różny od statusu płatności z bramki
@@ -389,42 +416,42 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                     case self::PAYMENT_STATUS_PENDING:
                         // Jeśli aktualny status zamówienia jest różny od ustawionego jako "oczekiwanie na płatność"
                         if ($paymentStatus != $orderPaymentState) {
-                            $transaction = $orderPayment->setTransactionId((string) $remoteId);
+                            $transaction = $orderPayment->setTransactionId((string)$remoteId);
                             $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_PENDING . ']')
-                                    ->save();
+                                ->save();
                             // Powiadomienie mailowe dla klienta
                             $order->setState($orderStatusWaitingState, $statusWaitingPayment, '', true)
-                                    ->sendOrderUpdateEmail(true)
-                                    ->save();
+                                ->sendOrderUpdateEmail(true)
+                                ->save();
                         }
                         break;
                     // Jeśli transakcja została zakończona poprawnie
                     case self::PAYMENT_STATUS_SUCCESS:
 
-                        $transaction = $orderPayment->setTransactionId((string) $remoteId);
+                        $transaction = $orderPayment->setTransactionId((string)$remoteId);
                         $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_SUCCESS . ']')
-                                ->registerAuthorizationNotification($amount)
-                                ->setIsTransactionApproved(true)
-                                ->setIsTransactionClosed(true)
-                                ->save();
+                            ->registerAuthorizationNotification($amount)
+                            ->setIsTransactionApproved(true)
+                            ->setIsTransactionClosed(true)
+                            ->save();
                         // Powiadomienie mailowe dla klienta
                         $order->setState($orderStatusAcceptState, $statusAcceptPayment, '', true)
-                                ->sendOrderUpdateEmail(true)
-                                ->save();
+                            ->sendOrderUpdateEmail(true)
+                            ->save();
                         break;
                     // Jeśli transakcja nie została zakończona poprawnie
                     case self::PAYMENT_STATUS_FAILURE:
 
                         // Jeśli aktualny status zamówienia jest równy ustawionemu jako "oczekiwanie na płatność"
                         if ($orderPaymentState != $paymentStatus) {
-                            $transaction = $orderPayment->setTransactionId((string) $remoteId);
+                            $transaction = $orderPayment->setTransactionId((string)$remoteId);
                             $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_FAILURE . ']')
-                                    ->registerCaptureNotification($amount)
-                                    ->save();
+                                ->registerCaptureNotification($amount)
+                                ->save();
                             // Powiadomienie mailowe dla klienta
                             $order->setState($orderStatusErrorState, $statusErrorPayment, '', true)
-                                    ->sendOrderUpdateEmail(true)
-                                    ->save();
+                                ->sendOrderUpdateEmail(true)
+                                ->save();
                         }
                         break;
                     default:
@@ -439,11 +466,14 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         }
     }
 
-    function saveCardData($data){
+    function saveCardData($data)
+    {
         $orderId = $data->transaction->orderID;
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
         $customer_id = $order->getData('customer_id');
-        if ($customer_id){
+        $status = self::TRANSACTION_NOTCONFIRMED;
+        $clientHash = (string)$data->recurringData->clientHash;
+        if ($customer_id) {
             $cardData = $data->cardData;
             $blueCard = Mage::getModel('bluepayment/bluecards')->getCollection()
                 ->addFieldToFilter('card_index', (int)$cardData->index)->getFirstItem();
@@ -454,9 +484,78 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $blueCard->setData('issuer', $cardData->issuer);
             $blueCard->setData('mask', $cardData->mask);
             $blueCard->setData('client_hash', Mage::getModel('core/encryption')
-                ->encrypt($data->recurringData->clientHash));
+                ->encrypt($clientHash));
             $blueCard->save();
+            $status = self::TRANSACTION_CONFIRMED;
         }
+        $this->recurringResponse($clientHash, $status);
+
+    }
+
+    function deleteCardData($data)
+    {
+        $clientHash = (string)$data->recurringData->clientHash;
+        Mage::getModel('bluepayment/bluecards')->getCollection()
+            ->addFieldToFilter('client_hash', Mage::getModel('core/encryption')
+                ->encrypt($clientHash))->delete();
+        $this->recurringResponse($clientHash, self::TRANSACTION_CONFIRMED);
+    }
+
+    function recurringResponse($clientHash, $status)
+    {
+        $serviceId = $this->getConfigData('service_id');
+
+        // Klucz współdzielony
+        $sharedKey = $this->getConfigData('shared_key');
+
+        $hashData = array($serviceId, $clientHash, $status, $sharedKey);
+
+        $hashConfirmation = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+
+        $confirmationList = $dom->createElement('confirmationList');
+
+        $domServiceID = $dom->createElement('serviceID', $serviceId);
+        $confirmationList->appendChild($domServiceID);
+
+        $recurringConfirmations = $dom->createElement('recurringConfirmations');
+        $confirmationList->appendChild($recurringConfirmations);
+
+        $recurringConfirmed = $dom->createElement('recurringConfirmed');
+        $recurringConfirmations->appendChild($recurringConfirmed);
+
+        $clientHash = $dom->createElement('clientHash', $clientHash);
+        $recurringConfirmed->appendChild($clientHash);
+
+        $domConfirmation = $dom->createElement('confirmation', $status);
+        $recurringConfirmed->appendChild($domConfirmation);
+
+        $domHash = $dom->createElement('hash', $hashConfirmation);
+        $confirmationList->appendChild($domHash);
+
+        $dom->appendChild($confirmationList);
+
+        echo $dom->saveXML();
+    }
+
+    function get_client_ip()
+    {
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if (isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
     }
 
 }

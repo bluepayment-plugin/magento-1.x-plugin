@@ -143,7 +143,6 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
 
             // Jeśli parametr 'transactions' istnieje w tablicy $params,
             // wykonaj operacje zmiany statusu płatności zamówienia
-            mail('tobiasz01@gmail.com','test magento.tobiaszkapusta.pl', json_encode($params));
 
             if (array_key_exists('transactions', $params)) {
                 // Zakodowany parametr transakcje

@@ -6,7 +6,5 @@
 			$this->_init("bluepayment/bluecards");
 		}
 
-		
-
     }
 	 

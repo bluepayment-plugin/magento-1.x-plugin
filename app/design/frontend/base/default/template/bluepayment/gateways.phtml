@@ -44,7 +44,7 @@
                         <label style="margin-left: 15px; display: none;" id="payment_method_bluepayment_reg">
                             <input type="checkbox" value="1" name="payment_method_bluepayment_auto_payment"/>
                             Przeczytałem i akceptuje
-                            <a href="#" style="margin: 0 0 0 6px;" target="_blank"> regulamin płatności automatycznych.</a>
+                            <a href="<?php echo Mage::getBaseUrl('media') . 'admin-config-uploads/' . Mage::helper('bluepayment/gateways')->getRegFileUrl(); ?>" style="margin: 0 0 0 6px;" target="_blank"> regulamin płatności automatycznych.</a>
                         </label>
                     </div>
                 </div>
