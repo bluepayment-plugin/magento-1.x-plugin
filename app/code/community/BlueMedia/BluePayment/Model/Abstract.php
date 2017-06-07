@@ -156,6 +156,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'OrderID' => $orderId,
             'Amount' => $amount,
             'CustomerEmail' => $customerEmail,
+            'CustomerIP' => $this->get_client_ip()
         );
 
         if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
@@ -171,13 +172,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                 if ($card_index == -1 || !$card) {
                     $params['RecurringAcceptanceState'] = 'ACCEPTED';
                     $params['RecurringAction'] = 'INIT_WITH_PAYMENT';
-//                    $params['ScreenType'] = 'IFRAME';
                 } else {
-                    $params['CustomerIP'] = $this->get_client_ip();
                     $params['RecurringAction'] = 'MANUAL';
                     $params['ClientHash'] = Mage::getModel('core/encryption')
                         ->decrypt($card->getData('client_hash'));
                 }
+            }
+            if (Mage::getStoreConfig("payment/bluepayment/iframe_payment") &&
+                in_array($gatewayId, array(
+                    Mage::getStoreConfig("payment/bluepayment/autopay_gateway"),
+                    Mage::getStoreConfig("payment/bluepayment/card_gateway")))){
+                $params['ScreenType'] = 'IFRAME';
             }
 
         }

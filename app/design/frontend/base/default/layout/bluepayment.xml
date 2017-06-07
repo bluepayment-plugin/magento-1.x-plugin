@@ -19,10 +19,8 @@
 -->
 <layout version="0.1.0">
     <bluepayment_processing_create>
-        <reference name="root">
-            <action method="setTemplate">
-                <template>bluepayment/empty.phtml</template>
-            </action>
+        <update handle="checkout_card"/>
+        <reference name="content">
             <block type="bluepayment/redirect" name="bluepayment_child" template="bluepayment/redirect.phtml"/>
         </reference>
     </bluepayment_processing_create>

@@ -40,11 +40,6 @@
                         <?php endforeach; ?>
                         <label>
                             <input type="radio" value="-1" name="payment_method_bluepayment_card_index"/> Dodaj nową kartę
-                        </label><br/>
-                        <label style="margin-left: 15px; display: none;" id="payment_method_bluepayment_reg">
-                            <input type="checkbox" value="1" name="payment_method_bluepayment_auto_payment"/>
-                            Przeczytałem i akceptuje
-                            <a href="<?php echo Mage::getBaseUrl('media') . 'admin-config-uploads/' . Mage::helper('bluepayment/gateways')->getRegFileUrl(); ?>" style="margin: 0 0 0 6px;" target="_blank"> regulamin płatności automatycznych.</a>
                         </label>
                     </div>
                 </div>
@@ -125,37 +120,14 @@
                 if (this.value == <?php echo Mage::helper('bluepayment/gateways')->getOneClickGatewayId(); ?>) {
                     jQuery('#payment_method_bluepayment_auto_payment').show();
                     jQuery('#payment_method_bluepayment_auto_payment input').attr('required', 'required');
-                    showReg();
                 }
                 else {
                     jQuery('#payment_method_bluepayment_auto_payment').hide();
                     jQuery('#payment_method_bluepayment_auto_payment input').attr('required', false);
                 }
             });
-            jQuery('input[type=radio][name=payment_method_bluepayment_card_index]').change(function () {
-                showReg();
-            });
         }
     });
-
-    function showReg(){
-        var index_card = 0;
-        var gateway = 0;
-
-        jQuery.map(jQuery('#co-payment-form').serializeArray(), function(n, i){
-            if (n['name'] == 'payment_method_bluepayment_gateway'){
-                gateway = n['value'];
-            } else if (n['name'] == 'payment_method_bluepayment_card_index'){
-                index_card = n['value'];
-            }
-        });
-
-        if (index_card == -1 && gateway == <?php echo Mage::helper('bluepayment/gateways')->getOneClickGatewayId(); ?>){
-            jQuery('#payment_method_bluepayment_reg').show();
-        } else {
-            jQuery('#payment_method_bluepayment_reg').hide();
-        }
-    }
 
     function setDefauleDisplayGateways(input) {
         if ($gateways.length) {

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
@@ -195,8 +195,10 @@
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
                 <autopay_gateway>1503</autopay_gateway>
+                <card_gateway>1500</card_gateway>
                 <addjquery>1</addjquery>
-            </bluepayment>            
+                <iframe_payment>0</iframe_payment>
+            </bluepayment>
         </payment>
     </default>
     <crontab>
