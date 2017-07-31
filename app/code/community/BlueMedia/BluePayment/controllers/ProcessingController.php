@@ -117,7 +117,16 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
 
                 // Sprawdzenie zgodności hash-y oraz reszty parametrów 
                 if ($hash == $hashLocal) {
-                    $this->_redirect('checkout/onepage/success', array('_secure' => true));
+                    $session = Mage::getSingleton('checkout/session');
+                    $order_id = $session->getLastRealOrderId();
+
+                    if (is_null($order_id)) {
+                        $this->loadLayout();
+                        $this->getLayout()->getBlock('bluepayment_back');//->setOrder($orderId);
+                        $this->renderLayout();
+                    } else {
+                        $this->_redirect('checkout/onepage/success', array('_secure' => true));
+                    }
                 } else {
                     $this->_redirect('checkout/onepage/failure', array('_secure' => true));
                 }

@@ -27,11 +27,9 @@
         </reference>
     </bluepayment_processing_create>
     <bluepayment_processing_back>
-        <reference name="root">
-            <action method="setTemplate">
-                <template>bluepayment/empty.phtml</template>
-            </action>
-            <block type="core/template" name="bluepayment_child" template="bluepayment/back.phtml" />
+        <update handle="checkout_card"/>
+        <reference name="content">
+            <block type="bluepayment/redirect" name="bluepayment_back" template="bluepayment/back.phtml"/>
         </reference>
     </bluepayment_processing_back>
     
