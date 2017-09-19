@@ -3,48 +3,6 @@
     <?php $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo(); ?>
     <h4 style="padding-top: 20px; padding-left: 30px;">Wybierz sposób płatności:</h4>
     <ul class="bluepayment-options-list" style="margin-left: 30px;">
-        <?php if (Mage::getSingleton('customer/session')->isLoggedIn() && Mage::helper('bluepayment/gateways')->showAutoPayments()): ?>
-            <?php $gatewayId = Mage::helper('bluepayment/gateways')->getOneClickGatewayId(); ?>
-            <?php $gatewayName = "Płatność automatyczna [One-Click]"; ?>
-            <?php $cardsList = $this->getUserCardList(); ?>
-            <li class="bluepayment-option">
-                <div class="bluepayment-input">
-                    <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>"
-                           type="radio"
-                           value="<?php echo $gatewayId; ?>"
-                           name="payment_method_bluepayment_gateway"
-                           title="<?php echo $gatewayName; ?>"
-                           required
-                           class="validate-one-required-by-name"
-                    />
-                    <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
-                        <?php if ($showLogoFlag): ?>
-                            <img src="https://platnosci.bm.pl/pomoc/grafika/1500.gif"
-                                 alt="<?php echo $gatewayName; ?>" style="height: 40px; vertical-align:middle;">
-                        <?php endif; ?>
-                        <span style="line-height: 40px;">
-                            <?php echo $gatewayName; ?>
-                        </span>
-                    </label>
-                    <label>
-
-                    </label>
-                    <div style="display: none; margin-left: 15px;" id="payment_method_bluepayment_auto_payment">
-                        <?php foreach ($cardsList as $card): ?>
-                            <label>
-                                <input type="radio" value="<?php echo $card->getData('card_index'); ?>"
-                                       name="payment_method_bluepayment_card_index"/>
-                                Karta <?php echo $card->getData('issuer'); ?> **** ****
-                                **** <?php echo $card->getData('mask'); ?>
-                            </label><br/>
-                        <?php endforeach; ?>
-                        <label>
-                            <input type="radio" value="-1" name="payment_method_bluepayment_card_index"/> Dodaj nową kartę
-                        </label>
-                    </div>
-                </div>
-            </li>
-        <?php endif; ?>
         <?php foreach ($gatewaysList as $gateway): ?>
             <?php $gatewayId = $gateway->getData('gateway_id'); ?>
             <?php $gatewayName = $gateway->getData('gateway_name'); ?>
@@ -77,7 +35,7 @@
                             <?php endif; ?>
                         <?php endif; ?>
                         <span style="line-height: 40px;">
-                            <?php echo $gatewayName . ' [' . $gateway->getData('gateway_type') . ']'; ?>
+                            <?php echo $gatewayName; ?>
                         </span>
                     </label>
 
@@ -114,16 +72,6 @@
                     showGateways();
                 } else {
                     hideGateways();
-                }
-            });
-            jQuery('input[type=radio][name=payment_method_bluepayment_gateway]').change(function () {
-                if (this.value == <?php echo Mage::helper('bluepayment/gateways')->getOneClickGatewayId(); ?>) {
-                    jQuery('#payment_method_bluepayment_auto_payment').show();
-                    jQuery('#payment_method_bluepayment_auto_payment input').attr('required', 'required');
-                }
-                else {
-                    jQuery('#payment_method_bluepayment_auto_payment').hide();
-                    jQuery('#payment_method_bluepayment_auto_payment input').attr('required', false);
                 }
             });
         }

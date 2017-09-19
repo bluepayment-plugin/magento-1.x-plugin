@@ -63,5 +63,9 @@
             <block type="bluepayment/payment_gateways" name="bluepayment_payment_gateways"
                    template="bluepayment/gateways.phtml"/>
         </reference>
+        <reference name="root">
+            <block type="bluepayment/payment_cards" name="bluepayment_payment_cards"
+                   template="bluepayment/cards.phtml"/>
+        </reference>
     </checkout_onepage_paymentmethod>
 </layout>

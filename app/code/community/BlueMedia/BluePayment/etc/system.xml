@@ -122,6 +122,15 @@
                             <tooltip>Przed uruchomieniem tej opcji skontaktuje się z Blue Media.
                                 Wymagane włączenie opcji "Wybór kanałów płatności w sklepie"</tooltip>
                         </auto_payments>
+                        <info_text translate="label">
+                            <label>Opis płatności</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Treść widoczna w procesie zamiawiania po wybraniu płatności BM.</tooltip>
+                        </info_text>
                     </fields>
                 </bluepayment>
             </groups>

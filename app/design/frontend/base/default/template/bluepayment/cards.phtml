@@ -1,0 +1,21 @@
+
+<?php $cardsList = $this->getUserCardList(); ?>
+
+<h4 style="padding-top: 20px; padding-left: 30px;">Wybierz kartę lub dodaj nową:</h4>
+<ul class="bluepayment-options-list" style="margin-left: 30px;">
+    <?php foreach ($cardsList as $card): ?>
+    <li class="bluepayment-option">
+        <div class="bluepayment-input">
+            <label>
+                <input type="radio" value="<?php echo $card->getData('card_index'); ?>"
+                       name="payment_method_bluepayment_card_index"/>
+                Karta <?php echo $card->getData('issuer'); ?> **** ****
+                **** <?php echo $card->getData('mask'); ?>
+            </label><br/>
+            <?php endforeach; ?>
+            <label>
+                <input type="radio" value="-1" name="payment_method_bluepayment_card_index"/> Dodaj nową kartę
+            </label>
+        </div>
+    </li>
+</ul>
