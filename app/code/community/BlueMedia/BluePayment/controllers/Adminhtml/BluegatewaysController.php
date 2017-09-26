@@ -3,6 +3,11 @@
 class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminhtml_Controller_Action
 {
 
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('bluepayment/bluegateways');
+    }
+
     protected function _initAction()
     {
         $this->loadLayout()->_setActiveMenu("bluepayment/bluegateways")->_addBreadcrumb(Mage::helper("adminhtml")->__("Bluegateways  Manager"), Mage::helper("adminhtml")->__("Bluegateways Manager"));
