@@ -421,11 +421,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                     case self::PAYMENT_STATUS_PENDING:
                         // Jeśli aktualny status zamówienia jest różny od ustawionego jako "oczekiwanie na płatność"
                         if ($paymentStatus != $orderPaymentState) {
-                            $transaction = $orderPayment->setTransactionId((string)$remoteId);
-                            $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_PENDING . ']')
-                                ->save();
                             // Powiadomienie mailowe dla klienta
-                            $order->setState($orderStatusWaitingState, $statusWaitingPayment, '', true)
+                            $order->setState($orderStatusWaitingState, $statusWaitingPayment,
+                                'Rozpoczęcię płatności przez Płatności online BM', true)
                                 ->sendOrderUpdateEmail(true)
                                 ->save();
                         }
@@ -435,12 +433,13 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
                         $transaction = $orderPayment->setTransactionId((string)$remoteId);
                         $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_SUCCESS . ']')
-                            ->registerAuthorizationNotification($amount)
+                            ->registerCaptureNotification($amount)
                             ->setIsTransactionApproved(true)
                             ->setIsTransactionClosed(true)
                             ->save();
                         // Powiadomienie mailowe dla klienta
-                        $order->setState($orderStatusAcceptState, $statusAcceptPayment, '', true)
+                        $order->setState($orderStatusAcceptState, $statusAcceptPayment,
+                            'Potwierdzenie płatności przez bramkę Płatności online BM', true)
                             ->sendOrderUpdateEmail(true)
                             ->save();
                         break;
@@ -449,12 +448,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
                         // Jeśli aktualny status zamówienia jest równy ustawionemu jako "oczekiwanie na płatność"
                         if ($orderPaymentState != $paymentStatus) {
-                            $transaction = $orderPayment->setTransactionId((string)$remoteId);
-                            $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_FAILURE . ']')
-                                ->registerCaptureNotification($amount)
-                                ->save();
                             // Powiadomienie mailowe dla klienta
-                            $order->setState($orderStatusErrorState, $statusErrorPayment, '', true)
+                            $order->setState($orderStatusErrorState, $statusErrorPayment,
+                                'Anulowanie płatności przez bramkę Płatności online BM', true)
                                 ->sendOrderUpdateEmail(true)
                                 ->save();
                         }
