@@ -49,6 +49,9 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
             try {
                 $xml = simplexml_load_string($curlResponse);
                 $url = (string)$xml->redirecturl;
+                if (empty($url)) {
+                    return array(false, '/checkout/onepage/failure');
+                }
             }catch (Exception $e){
                 return array(false, '/checkout/onepage/failure');
             }
