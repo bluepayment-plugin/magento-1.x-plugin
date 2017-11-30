@@ -1,8 +1,28 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->getLang() ?>" lang="<?php echo $this->getLang() ?>">
     <body>
-        <script type="text/javascript">
-            window.location.href = '<?php echo $this->getUrlWithParams(); ?>';
-        </script>
+            <?php $data = $this->getUrlWithParams(); ?>
+            <?php if ($data[0] === true): ?>
+                <script type="text/javascript" src="https://cards.bm.pl/integration/checkout.js"></script>
+                <script type="text/javascript">
+                    PayBmCheckout.transactionSuccess = function(status) {
+                        window.location.href = '<?php echo $data[2]; ?>';
+                    };
+
+                    PayBmCheckout.transactionDeclined = function(status) {
+                        window.location.href = '<?php echo $data[3]; ?>';
+                    };
+
+                    PayBmCheckout.transactionError = function(status) {
+                        window.location.href = '<?php echo $data[3]; ?>';
+                    };
+
+                    PayBmCheckout.transactionStartByUrl('<?php echo $data[1]; ?>');
+                </script>
+            <?php else: ?>
+                <script type="text/javascript">
+                    window.location.href = '<?php echo $data[1]; ?>';
+                </script>
+            <?php endif; ?>
     </body>
 </html>

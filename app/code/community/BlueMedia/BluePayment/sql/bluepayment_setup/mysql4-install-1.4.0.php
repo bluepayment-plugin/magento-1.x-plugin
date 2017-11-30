@@ -2,9 +2,9 @@
 $installer = $this;
 $installer->startSetup();
 $sql=<<<SQLTEXT
-CREATE TABLE 
+CREATE TABLE
 	blue_gateways(
-		entity_id INT NOT NULL AUTO_INCREMENT, 
+		entity_id INT NOT NULL AUTO_INCREMENT,
 		gateway_status INT NOT NULL,
 		gateway_id INT NOT NULL,
 		bank_name VARCHAR(100) CHARACTER SET utf8 NOT NULL,

@@ -152,6 +152,7 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
 
             // Jeśli parametr 'transactions' istnieje w tablicy $params,
             // wykonaj operacje zmiany statusu płatności zamówienia
+
             if (array_key_exists('transactions', $params)) {
                 // Zakodowany parametr transakcje
                 $paramTransactions = $params['transactions'];
@@ -161,6 +162,12 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($base64transactions);
 
+                $abstract = Mage::getModel('bluepayment/abstract');
+                $abstract->processStatusPayment($simpleXml);
+            } else if (array_key_exists('recurring', $params)) {
+                $paramRecurring = $params['recurring'];
+                $base64recurring = base64_decode($paramRecurring);
+                $simpleXml = simplexml_load_string($base64recurring);
                 $abstract = Mage::getModel('bluepayment/abstract');
                 $abstract->processStatusPayment($simpleXml);
             }

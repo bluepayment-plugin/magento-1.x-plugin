@@ -76,6 +76,10 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfig("payment/bluepayment/checkout_gateways_active");
     }
+    public function getRegFileUrl()
+    {
+        return Mage::getStoreConfig("payment/bluepayment/regulations_auto_payments");
+    }
 
     private function saveGateways($gatewayList)
     {
@@ -94,7 +98,6 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                     $gatewayModel->setData('bank_name', $gateway['bankName']);
                     $gatewayModel->setData('gateway_name', $gateway['gatewayName']);
                     $gatewayModel->setData('gateway_type', $gateway['gatewayType']);
-                    $gatewayModel->setData('gateway_logo_url', $gateway['iconURL']);
                     $gatewayModel->setData('status_date', $gateway['statusDate']);
                     try {
                         $gatewayModel->save();
@@ -129,7 +132,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return $existingGateways;
     }
 
-    private function randomString($length)
+    public function randomString($length)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randstring = '';
@@ -162,12 +165,39 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function setQuoteCardIndex($cardIndex)
+    {
+        Mage::getSingleton('checkout/session')->setQuoteCardIndex($cardIndex);
+    }
+
+    public function getQuoteCardIndex()
+    {
+        $cardIndex = Mage::getSingleton('checkout/session')->getQuoteCardIndex();
+        if ($cardIndex) {
+            return $cardIndex;
+        }
+        return false;
+    }
+
     public function showGatewayLogo()
     {
         if (Mage::getStoreConfig('payment/bluepayment/show_gateway_logo') == 1) {
             return true;
         }
         return false;
+    }
+
+    public function showAutoPayments()
+    {
+        if (Mage::getStoreConfig('payment/bluepayment/auto_payments') == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getOneClickGatewayId()
+    {
+        return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
     }
 
     /**

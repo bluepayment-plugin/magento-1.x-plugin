@@ -27,7 +27,6 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'name' => 'bank_name',
         ));
         $fieldset->addField('gateway_name', 'text', array(
-            'disabled' => true,
             'label' => Mage::helper('bluepayment')->__('Gateway Name'),
             'name' => 'gateway_name',
         ));

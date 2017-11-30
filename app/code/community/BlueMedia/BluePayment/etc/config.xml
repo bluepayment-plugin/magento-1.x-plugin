@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.4.6</version>
+            <version>1.5.6</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
@@ -27,6 +27,9 @@
                     <bluegateways>
                         <table>blue_gateways</table>
                     </bluegateways>
+                    <bluecards>
+                        <table>blue_cards</table>
+                    </bluecards>
                 </entities>
             </bluepayment_mysql4>
         </models>
@@ -183,13 +186,21 @@
                 <allowspecific>0</allowspecific>
                 <test_address_url>https://pay-accept.bm.pl/payment</test_address_url>
                 <prod_address_url>https://pay.bm.pl/payment</prod_address_url>
+
                 <test_address_gateways_url>https://pay-accept.bm.pl/paywayList</test_address_gateways_url>
                 <prod_address_gateways_url>https://pay.bm.pl/paywayList</prod_address_gateways_url>
+
+                <test_address_delete_card_url>https://pay-accept.bm.pl/deactivate_recurring</test_address_delete_card_url>
+                <prod_address_delete_card_url>https://pay.bm.pl/deactivate_recurring</prod_address_delete_card_url>
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
+                <autopay_gateway>1503</autopay_gateway>
+                <card_gateway>1500</card_gateway>
                 <addjquery>1</addjquery>
                 <makeinvoice>0</makeinvoice>
-            </bluepayment>            
+                <iframe_payment>0</iframe_payment>
+                <info_text>Po złożeniu zamówienia zostaniesz przekierowany do bezpiecznego serwisu płatności Blue Media.</info_text>
+            </bluepayment>
         </payment>
     </default>
     <crontab>
