@@ -98,6 +98,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                     $gatewayModel->setData('bank_name', $gateway['bankName']);
                     $gatewayModel->setData('gateway_name', $gateway['gatewayName']);
                     $gatewayModel->setData('gateway_type', $gateway['gatewayType']);
+                    $gatewayModel->setData('gateway_logo_url', $gateway['iconURL']);
                     $gatewayModel->setData('status_date', $gateway['statusDate']);
                     try {
                         $gatewayModel->save();
