@@ -580,7 +580,8 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $ipaddress = $_SERVER['REMOTE_ADDR'];
         else
             $ipaddress = 'UNKNOWN';
-        return $ipaddress;
+        $ipaddress = explode(', ',$ipaddress);
+        return end($ipaddress);
     }
 
 }
