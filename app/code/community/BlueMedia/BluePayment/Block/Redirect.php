@@ -27,6 +27,10 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         $abstract_model = Mage::getModel('bluepayment/abstract');
         $params = $abstract_model->getFormRedirectFields($this->getOrder());
         $orderID = $params['OrderID'];
+        $curl_payment = Mage::getStoreConfig("payment/bluepayment/curl_payment");
+        if (!$curl_payment){
+            return array(false, $abstract_model->getUrlGateway() . '?' . http_build_query($params));
+        }
 
         $fields = (is_array($params)) ? http_build_query($params) : $params;
         $curl = curl_init($abstract_model->getUrlGateway());
