@@ -51,7 +51,7 @@
     <checkout_onepage_index>
         <reference name="head">
             <action method="addJs" ifconfig="payment/bluepayment/addjquery">
-                <script>bluepayment/jquery-1.10.0.min.noConflict.js</script>
+                <script>bluepayment/jquery.min.noConflict.js</script>
             </action>
         </reference>
     </checkout_onepage_index>

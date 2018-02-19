@@ -46,4 +46,10 @@ class BlueMedia_BluePayment_Block_Form extends Mage_Payment_Block_Form
         return $logo_src != '' ? $logo_src : false;
     }
 
+    public function getInfoText(){
+        return preg_replace('#<script(.*?)>(.*?)</script>#is', '',
+            Mage::getStoreConfig("payment/bluepayment/info_text"));
+    }
+
+
 }

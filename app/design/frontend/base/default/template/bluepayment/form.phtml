@@ -22,11 +22,11 @@
 
 <!--Adres do pliku z logo firmy-->
 <?php $img = $this->getLogoSrc(); ?>
-
+<?php $info_text = $this->getInfoText(); ?>
 
 <?php if ($img): ?>
     <img src="<?php echo $img ?>" alt="Blue Media Logo" style="height: 40px; vertical-align:middle;"/>
 <?php endif; ?>
 <span>
-    <?php echo Mage::getStoreConfig("payment/bluepayment/info_text"); ?>
+    <?php echo $info_text; ?>
 </span>

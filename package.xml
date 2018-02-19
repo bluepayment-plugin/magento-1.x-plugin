@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>BlueMedia_BluePayment</name>
-    <version>1.4.4</version>
+    <version>1.4.5</version>
     <stability>stable</stability>
     <license uri="http://opensource.org/licenses/GPL-3.0">GPL-3.0</license>
     <channel>community</channel>
@@ -175,7 +175,7 @@
         <target name="magejs">
             <dir>
                 <dir name="bluepayment">
-                    <file name="jquery-1.10.0.min.noConflict.js"/>
+                    <file name="jquery.min.noConflict.js"/>
                 </dir>
             </dir>
         </target>
