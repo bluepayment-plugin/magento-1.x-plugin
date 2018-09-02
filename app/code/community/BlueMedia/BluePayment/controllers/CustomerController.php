@@ -51,7 +51,6 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
             'ServiceID' => $serviceId,
             'MessageID' => $messageId,
             'ClientHash' => $clientHash,
-
         );
 
         $data['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash(

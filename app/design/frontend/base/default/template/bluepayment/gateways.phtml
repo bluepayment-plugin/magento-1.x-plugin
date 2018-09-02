@@ -1,5 +1,5 @@
 <div class="p_method_bluepayment" id="p_method_bluepayment_gateway">
-    <?php $gatewaysList = $this->getGatewaysList() ?>
+    <?php $gatewaysList = $this->getGatewaysList(Mage::getSingleton('checkout/session')->getQuote()->getQuoteCurrencyCode()); ?>
     <?php $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo(); ?>
     <h4 style="padding-top: 20px; padding-left: 30px;">Wybierz sposób płatności:</h4>
     <ul class="bluepayment-options-list" style="margin-left: 30px;">
@@ -49,7 +49,6 @@
     //<![CDATA[
     var $gateways = jQuery('#p_method_bluepayment_gateway');
     jQuery(document).ready(function () {
-
         $interval = setInterval(function () {
             jQuery('#p_method_bluepayment_gateway').find('input').each(function () {
                 jQuery(this).removeAttr('disabled');
@@ -62,10 +61,6 @@
         var $bluepaymentInput = jQuery('#p_method_bluepayment');
         if ($bluepaymentInput.length) {
             setDefauleDisplayGateways($bluepaymentInput);
-
-//            jQuery('.input [name="payment[method]"]').each.change(function () {
-//                showHideGateways();
-//            });
 
             jQuery('input[name="payment[method]"]').change(function () {
                 if (jQuery(this).val() === 'bluepayment') {

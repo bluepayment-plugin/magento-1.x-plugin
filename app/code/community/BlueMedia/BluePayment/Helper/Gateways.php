@@ -7,28 +7,43 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     const MESSAGE_ID_STRING_LENGTH = 32;
     const UPLOAD_PATH = '/BlueMedia/';
 
+    public $currencies = array('PLN', 'GBP', 'EUR', 'USD');
+
     public function syncGateways()
     {
-        $result = array();
-        $hashMethod = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
-        $gatewayListAPIUrl = $this->getGatewayListUrl();
-        $serviceId = Mage::getStoreConfig("payment/bluepayment/service_id");
-        $messageId = $this->randomString(self::MESSAGE_ID_STRING_LENGTH);
-        $hashKey = Mage::getStoreConfig('payment/bluepayment/shared_key');
-        $tryCount = 0;
-        $loadResult = false;
-        while (!$loadResult) {
-            $loadResult = $this->loadGatewaysFromAPI($hashMethod, $serviceId, $messageId, $hashKey, $gatewayListAPIUrl);
-            if ($loadResult) {
-                $result['success'] = $this->saveGateways((array)$loadResult);
-                break;
-            } else {
-                if ($tryCount >= self::FAILED_CONNECTION_RETRY_COUNT) {
-                    $result['error'] = 'Exceeded the limit of attempts to sync gateways list!';
-                    break;
+        foreach ($this->currencies as $currency) {
+            $result = [];
+
+            $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
+            $hashKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
+
+            if ($serviceId && $hashKey) {
+                $hashMethod = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
+                $gatewayListAPIUrl = $this->getGatewayListUrl();
+                $messageId = $this->randomString(self::MESSAGE_ID_STRING_LENGTH);
+                $tryCount = 0;
+                $loadResult = false;
+                while (!$loadResult) {
+                    $loadResult = $this->loadGatewaysFromAPI(
+                        $hashMethod,
+                        $serviceId,
+                        $messageId,
+                        $hashKey,
+                        $gatewayListAPIUrl
+                    );
+
+                    if ($loadResult) {
+                        $result['success'] = $this->saveGateways((array)$loadResult, $currency);
+                        break;
+                    } else {
+                        if ($tryCount >= self::FAILED_CONNECTION_RETRY_COUNT) {
+                            $result['error'] = 'Exceeded the limit of attempts to sync gateways list!';
+                            break;
+                        }
+                    }
+                    $tryCount++;
                 }
             }
-            $tryCount++;
         }
     }
 
@@ -61,11 +76,13 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         }
     }
 
-    public function showBlueMediaInCheckout()
+    public function showBlueMediaInCheckout($currency = 'PLN')
     {
         $gatewaysCount = Mage::getModel('bluepayment/bluegateways')->getCollection()
             ->addFieldToFilter('gateway_status', 1)
+            ->addFieldToFilter('gateway_currency', $currency)
             ->getSize();
+
         if ($gatewaysCount > 0) {
             return true;
         }
@@ -81,19 +98,29 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfig("payment/bluepayment/regulations_auto_payments");
     }
 
-    private function saveGateways($gatewayList)
+    private function saveGateways($gatewayList, $currency = 'PLN')
     {
         $existingGateways = $this->getSimpleGatewaysList();
+
         if (isset($gatewayList['gateway'])) {
-            foreach ($gatewayList['gateway'] as $gatewayXMLObject) {
+            if (is_array($gatewayList['gateway'])) {
+                $gatewayXMLObjects = $gatewayList['gateway'];
+            } else {
+                $gatewayXMLObjects = [$gatewayList['gateway']];
+            }
+
+            foreach ($gatewayXMLObjects as $gatewayXMLObject) {
                 $gateway = (array)$gatewayXMLObject;
                 if (isset($gateway['gatewayID']) && isset($gateway['gatewayName']) && isset($gateway['gatewayType']) && isset($gateway['bankName']) && isset($gateway['iconURL']) && isset($gateway['statusDate'])) {
-                    if (isset($existingGateways[$gateway['gatewayID']])) {
-                        $gatewayModel = Mage::getModel('bluepayment/bluegateways')->load($existingGateways[$gateway['gatewayID']]['entity_id']);
+                    if (isset($existingGateways[$currency][$gateway['gatewayID']])) {
+                        $gatewayModel = Mage::getModel('bluepayment/bluegateways')->load(
+                            $existingGateways[$currency][$gateway['gatewayID']]['entity_id']
+                        );
                     } else {
                         $gatewayModel = Mage::getModel('bluepayment/bluegateways');
                     }
 
+                    $gatewayModel->setData('gateway_currency', $currency);
                     $gatewayModel->setData('gateway_id', $gateway['gatewayID']);
                     $gatewayModel->setData('bank_name', $gateway['bankName']);
                     $gatewayModel->setData('gateway_name', $gateway['gatewayName']);
@@ -115,9 +142,14 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         $bluegatewaysCollection = Mage::getModel('bluepayment/bluegateways')->getCollection();
 
         $existingGateways = array();
+        foreach ($this->currencies as $currency) {
+            $existingGateways[$currency] = array();
+        }
+
         foreach ($bluegatewaysCollection as $blueGateways) {
-            $existingGateways[$blueGateways->getData('gateway_id')] = array(
+            $existingGateways[$blueGateways->getData('gateway_currency')][$blueGateways->getData('gateway_id')] = array(
                 'entity_id' => $blueGateways->getId(),
+                'gateway_currency' => $blueGateways->getData('gateway_currency'),
                 'gateway_status' => $blueGateways->getData('gateway_status'),
                 'bank_name' => $blueGateways->getData('bank_name'),
                 'gateway_name' => $blueGateways->getData('gateway_name'),
