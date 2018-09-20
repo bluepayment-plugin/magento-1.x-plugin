@@ -97,17 +97,22 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
             $params = $this->getRequest()->getParams();
 
             if (array_key_exists('Hash', $params)) {
-                // Id serwisu partnera
-                $serviceId = Mage::getStoreConfig("payment/bluepayment/service_id");
-
                 // Id zamówienia
                 $orderId = $params['OrderID'];
 
                 // Hash
                 $hash = $params['Hash'];
 
+                // Zamówienie
+                $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+
+                // Waluta dla zamówienia
+                $currency = $order->getOrderCurrency()->getCode();
+
+                // Id serwisu partnera
+                $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
                 // Klucz współdzielony
-                $sharedKey = Mage::getStoreConfig("payment/bluepayment/shared_key");
+                $sharedKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
 
                 // Tablica danych z których wygenerować hash
                 $hashData = array($serviceId, $orderId, $sharedKey);
@@ -159,6 +164,7 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
 
                 // Odkodowanie parametru transakcji
                 $base64transactions = base64_decode($paramTransactions);
+
                 // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($base64transactions);
 

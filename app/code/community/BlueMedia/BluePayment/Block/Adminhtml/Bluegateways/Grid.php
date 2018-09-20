@@ -25,6 +25,11 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid extends Mage_Admin
             "index" => "entity_id",
         ));
 
+        $this->addColumn("gateway_currency", array(
+            "header" => Mage::helper("bluepayment")->__("Currency"),
+            "index" => "gateway_currency",
+        ));
+
         $this->addColumn('gateway_status', array(
             'header' => Mage::helper('bluepayment')->__('Gateway Status'),
             'index' => 'gateway_status',

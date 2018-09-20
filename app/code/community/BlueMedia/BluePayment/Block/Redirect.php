@@ -1,14 +1,14 @@
 <?php
 /**
  * BlueMedia_BluePayment extension
- * 
+ *
  * NOTICE OF LICENSE
- * 
+ *
  * This source file is subject to the MIT License
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/mit-license.php
- * 
+ *
  * @category       Blue Media
  * @package        BlueMedia_BluePayment
  * @copyright      Copyright (c) 2015
@@ -23,20 +23,21 @@
  */
 class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
 {
-    public function getUrlWithParams(){
+    public function getUrlWithParams()
+    {
         $abstract_model = Mage::getModel('bluepayment/abstract');
         $params = $abstract_model->getFormRedirectFields($this->getOrder());
         $orderID = $params['OrderID'];
         $curl_payment = Mage::getStoreConfig("payment/bluepayment/curl_payment");
-        if (!$curl_payment){
+        if (!$curl_payment) {
             return array(false, $abstract_model->getUrlGateway() . '?' . http_build_query($params));
         }
 
         $fields = (is_array($params)) ? http_build_query($params) : $params;
         $curl = curl_init($abstract_model->getUrlGateway());
-        if (array_key_exists('ClientHash', $params)){
+        if (array_key_exists('ClientHash', $params)) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, array('BmHeader: pay-bm'));
-        } else{
+        } else {
             curl_setopt($curl, CURLOPT_HTTPHEADER, array('BmHeader: pay-bm-continue-transaction-url'));
         }
         curl_setopt($curl, CURLOPT_POSTFIELDS, $fields);
@@ -46,6 +47,7 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         $curlResponse = curl_exec($curl);
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = curl_getinfo($curl);
+
         curl_close($curl);
         if (array_key_exists('ClientHash', $params)){
             return array(false, $this->generateSuccessUrl($orderID));
@@ -69,19 +71,24 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         );
     }
 
-    function generateSuccessUrl($orderID){
-        $serviceId = Mage::getStoreConfig("payment/bluepayment/service_id");
-        $sharedKey = Mage::getStoreConfig("payment/bluepayment/shared_key");
-        $hashData = array($serviceId, $orderID, $sharedKey);
+    function generateSuccessUrl($orderId)
+    {
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+        $currency = $order->getOrderCurrency()->getCode();
+
+        $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
+        $sharedKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
+        $hashData = array($serviceId, $orderId, $sharedKey);
         $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
         return Mage::getUrl('bluepayment/processing/back') . '?' . http_build_query(array(
                 'ServiceID'=> $serviceId,
-                'OrderID' => $orderID,
+                'OrderID' => $orderId,
                 'Hash' => $hashLocal
             ));
     }
 
-    function generateFailureUrl(){
+    function generateFailureUrl()
+    {
         return Mage::getUrl('bluepayment/processing/back');
     }
 }

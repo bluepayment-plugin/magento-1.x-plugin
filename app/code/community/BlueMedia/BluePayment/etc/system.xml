@@ -53,24 +53,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </test_mode>
-                        <service_id translate="label">
-                            <label>Service partner ID</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>40</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
-                        </service_id>
-                        <shared_key translate="label">
-                            <label>Shared key</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>50</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
-                        </shared_key>
                         <status_waiting_payment translate="label">
                             <label>Status waiting payment</label>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
@@ -159,6 +141,114 @@
                         </info_text>
                     </fields>
                 </bluepayment>
+                <bluepayment_pln translate="label" module="bluepayment">
+                    <label>Online payment BM (PLN)</label>
+                    <sort_order>671</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <service_id translate="label">
+                            <label>Service partner ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                        </service_id>
+                        <shared_key translate="label">
+                            <label>Shared key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Kod alfanumeryczny</tooltip>
+                        </shared_key>
+                    </fields>
+                </bluepayment_pln>
+                <bluepayment_eur translate="label" module="bluepayment">
+                    <label>Online payment BM (EUR)</label>
+                    <sort_order>672</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <service_id translate="label">
+                            <label>Service partner ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                        </service_id>
+                        <shared_key translate="label">
+                            <label>Shared key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Kod alfanumeryczny</tooltip>
+                        </shared_key>
+                    </fields>
+                </bluepayment_eur>
+                <bluepayment_gbp translate="label" module="bluepayment">
+                    <label>Online payment BM (GBP)</label>
+                    <sort_order>673</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <service_id translate="label">
+                            <label>Service partner ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                        </service_id>
+                        <shared_key translate="label">
+                            <label>Shared key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Kod alfanumeryczny</tooltip>
+                        </shared_key>
+                    </fields>
+                </bluepayment_gbp>
+                <bluepayment_usd translate="label" module="bluepayment">
+                    <label>Online payment BM (USD)</label>
+                    <sort_order>674</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <service_id translate="label">
+                            <label>Service partner ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                        </service_id>
+                        <shared_key translate="label">
+                            <label>Shared key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Kod alfanumeryczny</tooltip>
+                        </shared_key>
+                    </fields>
+                </bluepayment_usd>
             </groups>
         </payment>
     </sections>

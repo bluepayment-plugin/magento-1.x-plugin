@@ -33,13 +33,14 @@
 ?>
 <dl class="sp-methods" id="checkout-payment-method-load">
     <?php
-    $methods = $this->getMethods();
-    $oneMethod = count($methods) <= 1;
+        $methods = $this->getMethods();
+        $oneMethod = count($methods) <= 1;
     ?>
     <?php
     foreach ($methods as $_method):
         $_code = $_method->getCode();
-        if ($_code == 'bluepayment' && !Mage::helper('bluepayment/gateways')->showBlueMediaInCheckout()):
+
+        if ($_code == 'bluepayment' && !Mage::helper('bluepayment/gateways')->showBlueMediaInCheckout($this->getQuote()->getQuoteCurrencyCode())):
             continue;
         else:
             ?>

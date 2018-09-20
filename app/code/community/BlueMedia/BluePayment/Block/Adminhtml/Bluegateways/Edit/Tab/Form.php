@@ -21,6 +21,11 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'label' => Mage::helper('bluepayment')->__('Gateway ID'),
             'name' => 'gateway_id',
         ));
+        $fieldset->addField('gateway_currency', 'text', array(
+            'disabled' => true,
+            'label' => Mage::helper('bluepayment')->__('Currency'),
+            'name' => 'gateway_currency',
+        ));
         $fieldset->addField('bank_name', 'text', array(
             'disabled' => true,
             'label' => Mage::helper('bluepayment')->__('Bank Name'),

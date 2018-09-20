@@ -90,7 +90,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      */
     protected $_isInitializeNeeded = true;
 
-    protected $_orderParams = array('ServiceID', 'OrderID', 'Amount', 'GatewayID',
+    protected $_orderParams = array('ServiceID', 'OrderID', 'Amount', 'GatewayID', 'Currency',
         'CustomerEmail', 'CustomerIP', 'RecurringAcceptanceState', 'RecurringAction', 'ClientHash', 'ScreenType');
 
     /**
@@ -134,15 +134,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         // Suma zamówienia
         $amount = number_format(round($order->getGrandTotal(), 2), 2, '.', '');
 
+        // Waluta
+        $currency = $order->getOrderCurrency()->getCode();
+
         // Dane serwisu partnera
         // Indywidualny numer serwisu
-        $serviceId = $this->getConfigData('service_id');
+        $serviceId = $this->getConfigData('service_id', null, $currency);
 
         // Klucz współdzielony
-        $sharedKey = $this->getConfigData('shared_key');
+        $sharedKey = $this->getConfigData('shared_key', null, $currency);
 
         //Kanał płatności
-
         $gatewayId = Mage::helper('bluepayment/gateways')->getQuoteGatewayId();
         if (!$gatewayId) {
             $gatewayId = 0;
@@ -155,8 +157,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'ServiceID' => $serviceId,
             'OrderID' => $orderId,
             'Amount' => $amount,
+            'Currency' => $currency,
             'CustomerEmail' => $customerEmail,
-            'CustomerIP' => $this->get_client_ip()
+            'CustomerIP' => $this->get_client_ip(),
         );
 
         if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
@@ -188,9 +191,11 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         }
 
         $params = $this->_sortParams($params);
+        
         $hashData = array_values($params);
         $hashData[] = $sharedKey;
         $params['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
+
         return $params;
     }
 
@@ -215,7 +220,12 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      */
     public function processStatusPayment($response)
     {
-        if ($this->_validAll($response)) {
+        $transaction = $response->transactions->transaction;
+        $orderId = $transaction->orderID;
+
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+
+        if ($this->_validAll($response, $order)) {
             switch ($response->getName()) {
                 case 'recurringActivation':
                     $this->saveCardData($response);
@@ -238,15 +248,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param XML $response
      * @return boolen
      */
-    public function _validAll($response)
+    public function _validAll($response, $order)
     {
+        $currency = $order->getOrderCurrency()->getCode();
 
-        $service_id = $this->getConfigData('service_id');
-        // Klucz współdzielony
-        $shared_key = $this->getConfigData('shared_key');
+        $service_id = $this->getConfigData('service_id', null, $currency);
+        $shared_key = $this->getConfigData('shared_key', null, $currency);
+
+        \Mage::log($service_id);
+        \Mage::log($shared_key);
 
         $algorithm = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
-
         $separator = Mage::getStoreConfig("payment/bluepayment/hash_separator");
 
         if ($service_id != $response->serviceID)
@@ -298,16 +310,15 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      *
      * @return XML
      */
-    protected function returnConfirmation($orderId, $confirmation)
+    protected function returnConfirmation($order, $confirmation)
     {
-        // Id serwisu partnera
-        $serviceId = $this->getConfigData('service_id');
+        $currency = $order->getOrderCurrency()->getCode();
 
-        // Klucz współdzielony
-        $sharedKey = $this->getConfigData('shared_key');
+        $serviceId = $this->getConfigData('service_id', null, $currency);
+        $sharedKey = $this->getConfigData('shared_key', null, $currency);
 
         // Tablica danych z których wygenerować hash
-        $hashData = array($serviceId, $orderId, $confirmation, $sharedKey);
+        $hashData = array($serviceId, $order->getId(), $confirmation, $sharedKey);
 
         // Klucz hash
         $hashConfirmation = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
@@ -325,7 +336,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $domTransactionConfirmed = $dom->createElement('transactionConfirmed');
         $transactionsConfirmations->appendChild($domTransactionConfirmed);
 
-        $domOrderID = $dom->createElement('orderID', $orderId);
+        $domOrderID = $dom->createElement('orderID', $order->getId());
         $domTransactionConfirmed->appendChild($domOrderID);
 
         $domConfirmation = $dom->createElement('confirmation', $confirmation);
@@ -464,7 +475,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             }
             $orderPayment->setAdditionalInformation('bluepayment_state', $paymentStatus);
             $orderPayment->save();
-            $this->returnConfirmation($orderId, self::TRANSACTION_CONFIRMED);
+            $this->returnConfirmation($order, self::TRANSACTION_CONFIRMED);
         } catch (Exception $e) {
             Mage::logException($e);
         }
