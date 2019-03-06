@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.6.0</version>
+            <version>1.6.2</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
@@ -117,11 +117,6 @@
                 </bluepayment>
             </updates>
         </layout>
-        
-
-
-                
-
     </frontend>
     <adminhtml>
         <menu>

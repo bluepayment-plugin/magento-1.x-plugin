@@ -111,7 +111,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
             foreach ($gatewayXMLObjects as $gatewayXMLObject) {
                 $gateway = (array)$gatewayXMLObject;
-                if (isset($gateway['gatewayID']) && isset($gateway['gatewayName']) && isset($gateway['gatewayType']) && isset($gateway['bankName']) && isset($gateway['iconURL']) && isset($gateway['statusDate'])) {
+                if (isset($gateway['gatewayID']) && isset($gateway['gatewayName']) && isset($gateway['bankName']) && isset($gateway['iconURL']) && isset($gateway['statusDate'])) {
                     if (isset($existingGateways[$currency][$gateway['gatewayID']])) {
                         $gatewayModel = Mage::getModel('bluepayment/bluegateways')->load(
                             $existingGateways[$currency][$gateway['gatewayID']]['entity_id']
@@ -124,9 +124,15 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                     $gatewayModel->setData('gateway_id', $gateway['gatewayID']);
                     $gatewayModel->setData('bank_name', $gateway['bankName']);
                     $gatewayModel->setData('gateway_name', $gateway['gatewayName']);
-                    $gatewayModel->setData('gateway_type', $gateway['gatewayType']);
                     $gatewayModel->setData('gateway_logo_url', $gateway['iconURL']);
                     $gatewayModel->setData('status_date', $gateway['statusDate']);
+
+                    if (isset($gateway['gatewayType'])) {
+                        $gatewayModel->setData('gateway_type', $gateway['gatewayType']);
+                    } else {
+                        $gatewayModel->setData('gateway_type', '');
+                    }
+
                     try {
                         $gatewayModel->save();
                     } catch (Mage_Core_Exception $e) {

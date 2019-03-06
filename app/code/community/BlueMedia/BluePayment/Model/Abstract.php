@@ -290,16 +290,12 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      *
      * @return boolean
      */
-    public function isOrderCompleted($order)
+    public function isOrderChangable($order)
     {
-        $status = $order->getStatus();
-        $stateOrderTab = array(
-            Mage_Sales_Model_Order::STATE_CLOSED,
-            Mage_Sales_Model_Order::STATE_CANCELED,
-            Mage_Sales_Model_Order::STATE_COMPLETE
-        );
+        $status        = $order->getStatus();
+        $unchangeableStatuses = explode(',', $this->getConfigData('unchangable_statuses'));
 
-        return in_array($status, $stateOrderTab);
+        return !in_array($status, $unchangeableStatuses);
     }
 
     /**
@@ -426,7 +422,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         try {
             // Jeśli zamówienie jest otwarte i status płatności zamówienia jest różny od statusu płatności z bramki
-            if (!($this->isOrderCompleted($order)) && $orderPaymentState != $paymentStatus) {
+            if (!($this->isOrderChangable($order)) && $orderPaymentState != $paymentStatus) {
                 switch ($paymentStatus) {
                     // Jeśli transakcja została rozpoczęta
                     case self::PAYMENT_STATUS_PENDING:
