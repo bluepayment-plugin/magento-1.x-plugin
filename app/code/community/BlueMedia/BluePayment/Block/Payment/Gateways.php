@@ -14,7 +14,17 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
                 ->getCollection()
                 ->addFieldToFilter('gateway_status', 1)
                 ->addFieldToFilter('gateway_currency', $currency)
-                ->setOrder('gateway_sort_order', 'DESC');
+                ->setOrder('gateway_sort_order', 'ASC');
+
+            // Order by gateway_sort_order
+            // but 0 goes to the end of the list
+             $this->_gatewayList->getSelect()->order(
+                 new Zend_Db_Expr(
+                     "CASE WHEN `gateway_sort_order` = 0 THEN 999999
+                    ELSE `gateway_sort_order` END"
+                 )
+             );
+
         }
 
         return $this->_gatewayList;
