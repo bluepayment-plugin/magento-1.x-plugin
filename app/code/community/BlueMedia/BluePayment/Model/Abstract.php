@@ -255,9 +255,6 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $service_id = $this->getConfigData('service_id', null, $currency);
         $shared_key = $this->getConfigData('shared_key', null, $currency);
 
-        \Mage::log($service_id);
-        \Mage::log($shared_key);
-
         $algorithm = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
         $separator = Mage::getStoreConfig("payment/bluepayment/hash_separator");
 
@@ -421,8 +418,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $paymentStatus = (string)$paymentStatus;
 
         try {
-            // Jeśli zamówienie jest otwarte i status płatności zamówienia jest różny od statusu płatności z bramki
-            if (!($this->isOrderChangable($order)) && $orderPaymentState != $paymentStatus) {
+            // Jeśli status zamówienia jest możliwy do zmiany i status płatności zamówienia jest różny od statusu
+            // płatności z bramki
+            if ($this->isOrderChangable($order) && $orderPaymentState != $paymentStatus) {
                 switch ($paymentStatus) {
                     // Jeśli transakcja została rozpoczęta
                     case self::PAYMENT_STATUS_PENDING:
