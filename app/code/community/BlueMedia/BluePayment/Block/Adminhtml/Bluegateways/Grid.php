@@ -53,6 +53,12 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid extends Mage_Admin
             "header" => Mage::helper("bluepayment")->__("Gateway Description"),
             "index" => "gateway_description",
         ));
+        $this->addColumn("is_separated_method", array(
+            "header" => Mage::helper("bluepayment")->__("Is separated method?"),
+            "index" => "is_separated_method",
+            'type' => 'options',
+            'options' => BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid::getOptionArray6(),
+        ));
         $this->addColumn("gateway_sort_order", array(
             "header" => Mage::helper("bluepayment")->__("Sort Order"),
             "index" => "gateway_sort_order",

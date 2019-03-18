@@ -2,7 +2,7 @@
 <config>
     <modules>
         <BlueMedia_BluePayment>
-            <version>1.6.2</version>
+            <version>1.7.0</version>
         </BlueMedia_BluePayment>
     </modules>
     <global>
