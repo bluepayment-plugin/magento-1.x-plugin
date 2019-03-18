@@ -160,6 +160,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                 'bank_name' => $blueGateways->getData('bank_name'),
                 'gateway_name' => $blueGateways->getData('gateway_name'),
                 'gateway_description' => $blueGateways->getData('gateway_description'),
+                'is_separated_method' => $blueGateways->getData('is_separated_method'),
                 'gateway_sort_order' => $blueGateways->getData('gateway_sort_order'),
                 'gateway_type' => $blueGateways->getData('gateway_type'),
                 'gateway_logo_url' => $blueGateways->getData('gateway_logo_url'),
@@ -169,6 +170,26 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             );
         }
         return $existingGateways;
+    }
+
+    public function getSeparatedGatewaysList($currency = 'PLN')
+    {
+        $gateways = Mage::getModel('bluepayment/bluegateways')->getCollection()
+            ->addFieldToFilter('gateway_status', 1)
+            ->addFieldToFilter('gateway_currency', $currency)
+            ->addFieldToFilter('is_separated_method', 1);
+
+        // Order by gateway_sort_order
+        // but 0 goes to the end of the list
+        $gateways->getSelect()->order(
+            new Zend_Db_Expr(
+                "CASE WHEN `gateway_sort_order` = 0 THEN 999999
+                    ELSE `gateway_sort_order` END"
+            )
+        );
+
+
+        return $gateways;
     }
 
     public function randomString($length)

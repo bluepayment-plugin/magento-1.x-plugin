@@ -8,12 +8,11 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
     public function getGatewaysList($currency = 'PLN')
     {
         if (!$this->_gatewayList) {
-            $order = Mage::registry('current_order');
-
             $this->_gatewayList = Mage::getModel('bluepayment/bluegateways')
                 ->getCollection()
                 ->addFieldToFilter('gateway_status', 1)
                 ->addFieldToFilter('gateway_currency', $currency)
+                ->addFieldToFilter('is_separated_method', 0)
                 ->setOrder('gateway_sort_order', 'ASC');
 
             // Order by gateway_sort_order

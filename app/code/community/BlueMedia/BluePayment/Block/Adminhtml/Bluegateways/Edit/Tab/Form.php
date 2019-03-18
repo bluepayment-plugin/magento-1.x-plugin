@@ -46,6 +46,12 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             "name" => "gateway_description",
         ));
 
+        $fieldset->addField("is_separated_method", "select", array(
+            "label" => Mage::helper("bluepayment")->__("Is separated method?"),
+            'values' => BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Grid::getValueArray6(),
+            "name" => "is_separated_method",
+        ));
+
         $fieldset->addField("gateway_sort_order", "text", array(
             "label" => Mage::helper("bluepayment")->__("Sort Order"),
             "name" => "gateway_sort_order",
