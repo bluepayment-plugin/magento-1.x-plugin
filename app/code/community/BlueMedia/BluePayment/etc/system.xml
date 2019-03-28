@@ -258,6 +258,33 @@
                         </shared_key>
                     </fields>
                 </bluepayment_usd>
+                <bluepayment_czk translate="label" module="bluepayment">
+                    <label>Online payment BM (CZK)</label>
+                    <sort_order>675</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <service_id translate="label">
+                            <label>Service partner ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                        </service_id>
+                        <shared_key translate="label">
+                            <label>Shared key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <tooltip>Kod alfanumeryczny</tooltip>
+                        </shared_key>
+                    </fields>
+                </bluepayment_czk>
             </groups>
         </payment>
     </sections>

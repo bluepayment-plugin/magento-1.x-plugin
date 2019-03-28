@@ -29,14 +29,16 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
      *
      * @return Mage_Checkout_Model_Session
      */
-    protected function _getCheckout() {
+    protected function _getCheckout()
+    {
         return Mage::getSingleton('checkout/session');
     }
 
     /**
      * Rozpoczęcie procesu płatności
      */
-    public function createAction() {
+    public function createAction()
+    {
         try {
             // Sesja
             $session = $this->_getCheckout();
@@ -91,7 +93,8 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
      *
      * @throws Exception
      */
-    public function backAction() {
+    public function backAction()
+    {
         try {
             // Parametry z request
             $params = $this->getRequest()->getParams();
@@ -150,10 +153,13 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
      *
      * @throws Exception
      */
-    public function statusAction() {
+    public function statusAction()
+    {
         try {
             // Parametry z request
             $params = $this->getRequest()->getParams();
+
+            Mage::log('[Processing] Status params - '.json_encode($params), null, 'bluemedia.log', true);
 
             // Jeśli parametr 'transactions' istnieje w tablicy $params,
             // wykonaj operacje zmiany statusu płatności zamówienia
@@ -165,15 +171,24 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odkodowanie parametru transakcji
                 $base64transactions = base64_decode($paramTransactions);
 
+                Mage::log('[Processing] Transactions - '.$base64transactions, null, 'bluemedia.log', true);
+
                 // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($base64transactions);
 
+                /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
                 $abstract = Mage::getModel('bluepayment/abstract');
                 $abstract->processStatusPayment($simpleXml);
             } else if (array_key_exists('recurring', $params)) {
                 $paramRecurring = $params['recurring'];
                 $base64recurring = base64_decode($paramRecurring);
+
+                Mage::log('[Processing] Recurring - '.$base64recurring, null, 'bluemedia.log', true);
+
+                // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($base64recurring);
+
+                /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
                 $abstract = Mage::getModel('bluepayment/abstract');
                 $abstract->processStatusPayment($simpleXml);
             }

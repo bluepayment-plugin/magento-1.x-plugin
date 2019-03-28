@@ -7,7 +7,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     const MESSAGE_ID_STRING_LENGTH = 32;
     const UPLOAD_PATH = '/BlueMedia/';
 
-    public $currencies = array('PLN', 'GBP', 'EUR', 'USD');
+    public $currencies = array('PLN', 'GBP', 'EUR', 'USD', 'CZK');
 
     public function syncGateways()
     {
@@ -57,12 +57,17 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         );
         $fields = (is_array($data)) ? http_build_query($data) : $data;
         try {
+            Mage::log('[Gateways] Response - '.json_encode($data), null, 'bluemedia.log', true);
+
             $curl = curl_init($gatewayListAPIUrl);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $fields);
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
             $curlResponse = curl_exec($curl);
+
+            Mage::log('[Gateways] Response - '.$curlResponse, null, 'bluemedia.log', true);
+
             curl_close($curl);
             if ($curlResponse == 'ERROR') {
                 return false;
@@ -86,6 +91,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         if ($gatewaysCount > 0) {
             return true;
         }
+
         return false;
     }
 
@@ -93,6 +99,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfig("payment/bluepayment/checkout_gateways_active");
     }
+
     public function getRegFileUrl()
     {
         return Mage::getStoreConfig("payment/bluepayment/regulations_auto_payments");
@@ -188,7 +195,6 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             )
         );
 
-
         return $gateways;
     }
 
@@ -196,18 +202,22 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randstring = '';
+
         for ($i = 0; $i < $length; $i++) {
             $randstring .= $characters[rand(0, strlen($characters) - 1)];
         }
+
         return $randstring;
     }
 
     private function getGatewayListUrl()
     {
-        $mode = Mage::getStoreConfig('payment/bluepayment/test_mode');
-        if ($mode) {
+        $testMode = Mage::getStoreConfig('payment/bluepayment/test_mode');
+
+        if ($testMode) {
             return Mage::getStoreConfig('payment/bluepayment/test_address_gateways_url');
         }
+
         return Mage::getStoreConfig('payment/bluepayment/prod_address_gateways_url');
     }
 
@@ -219,9 +229,11 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     public function getQuoteGatewayId()
     {
         $gatewayId = Mage::getSingleton('checkout/session')->getQuoteGatewayId();
+
         if ($gatewayId) {
             return $gatewayId;
         }
+
         return false;
     }
 
@@ -244,14 +256,20 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         if (Mage::getStoreConfig('payment/bluepayment/show_gateway_logo') == 1) {
             return true;
         }
+
         return false;
     }
 
     public function showAutoPayments()
     {
-        if (Mage::getStoreConfig('payment/bluepayment/auto_payments') == 1) {
+        if (
+            Mage::getSingleton('customer/session')->isLoggedIn()
+            && Mage::getStoreConfig('payment/bluepayment/auto_payments') == 1
+            && Mage::app()->getStore()->getCurrentCurrencyCode() == 'PLN'
+        ) {
             return true;
         }
+
         return false;
     }
 
@@ -263,13 +281,14 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     /**
      * save uploaded image in the post data
      *
-     * @param type $postData reference to the uploaded post data
+     * @param array $postData reference to the uploaded post data
      * @param string $fieldName form field name
      * @return bool true on success
      */
     public function _getFormImage(&$postData, $fieldName)
     {
         $path = Mage::getBaseDir('media') . self::UPLOAD_PATH;
+
         try {
             if (isset($postData[$fieldName]['delete']) && $postData[$fieldName]['delete'] == 1) {
                 unlink(Mage::getBaseDir('media') . $postData[$fieldName]['value']);

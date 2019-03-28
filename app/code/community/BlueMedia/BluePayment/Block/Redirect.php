@@ -27,6 +27,9 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
     {
         $abstract_model = Mage::getModel('bluepayment/abstract');
         $params = $abstract_model->getFormRedirectFields($this->getOrder());
+
+        Mage::log('[Redirect] Response - '.json_encode($params), null, 'bluemedia.log', true);
+
         $orderID = $params['OrderID'];
         $curl_payment = Mage::getStoreConfig("payment/bluepayment/curl_payment");
         if (!$curl_payment) {
@@ -34,6 +37,7 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         }
 
         $fields = (is_array($params)) ? http_build_query($params) : $params;
+
         $curl = curl_init($abstract_model->getUrlGateway());
         if (array_key_exists('ClientHash', $params)) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, array('BmHeader: pay-bm'));
@@ -48,8 +52,10 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $response = curl_getinfo($curl);
 
+        Mage::log('[Redirect] Response - '.$curlResponse, null, 'bluemedia.log', true);
+
         curl_close($curl);
-        if (array_key_exists('ClientHash', $params)){
+        if (array_key_exists('ClientHash', $params)) {
             return array(false, $this->generateSuccessUrl($orderID));
         } else {
             try {
@@ -58,7 +64,7 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
                 if (empty($url)) {
                     return array(false, '/checkout/onepage/failure');
                 }
-            }catch (Exception $e){
+            } catch (Exception $e) {
                 return array(false, '/checkout/onepage/failure');
             }
         }

@@ -20,7 +20,7 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
     public function viewAction()
     {
         $card_index = $this->getRequest()->getParam('card_index');
-        if ($card_index){
+        if ($card_index) {
             if (Mage::getSingleton('customer/session')->isLoggedIn()) {
                 try {
                     $customerData = Mage::getSingleton('customer/session')->getCustomer();
@@ -40,12 +40,12 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
         $this->renderLayout();
     }
 
-    private function deleteCard($card){
-        $clientHash = Mage::getModel('core/encryption')
-            ->decrypt($card->getData('client_hash'));
-        $serviceId = Mage::getStoreConfig("payment/bluepayment/service_id");
+    private function deleteCard($card)
+    {
+        $clientHash = Mage::getModel('core/encryption')->decrypt($card->getData('client_hash'));
+        $serviceId = Mage::getStoreConfig("payment/bluepayment_pln/service_id");
         $messageId = Mage::helper('bluepayment/gateways')->randomString(self::MESSAGE_ID_STRING_LENGTH);
-        $hashKey = Mage::getStoreConfig('payment/bluepayment/shared_key');
+        $hashKey = Mage::getStoreConfig('payment/bluepayment_pln/shared_key');
 
         $data = array(
             'ServiceID' => $serviceId,

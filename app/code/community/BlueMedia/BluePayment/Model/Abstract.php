@@ -159,7 +159,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'Amount' => $amount,
             'Currency' => $currency,
             'CustomerEmail' => $customerEmail,
-            'CustomerIP' => $this->get_client_ip(),
+            'CustomerIP' => self::getClientIp(),
         );
 
         if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
@@ -215,14 +215,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * Ustawia odpowiedni status transakcji/płatności zgodnie z uzyskaną informacją
      * z akcji 'statusAction'
      *
-     * @param array $transactions
-     * @param string $hash
+     * @param SimpleXMLElement $response
      */
     public function processStatusPayment($response)
     {
-        $transaction = $response->transactions->transaction;
-        $orderId = $transaction->orderID;
+        if ($response->getName() == 'transactionList') {
+            $transaction = $response->transactions->transaction;
+        } else {
+            $transaction = $response->transaction;
+        }
 
+        $orderId = $transaction->orderID;
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 
         if ($this->_validAll($response, $order)) {
@@ -245,8 +248,11 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
     /**
      * Waliduje zgodność otrzymanego XML'a
-     * @param XML $response
-     * @return boolen
+     *
+     * @param $response
+     * @param $order
+     *
+     * @return booleasn
      */
     public function _validAll($response, $order)
     {
@@ -258,14 +264,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $algorithm = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
         $separator = Mage::getStoreConfig("payment/bluepayment/hash_separator");
 
-        if ($service_id != $response->serviceID)
+        if ($service_id != $response->serviceID) {
             return false;
+        }
+
         $this->_checkHashArray = array();
         $hash = (string)$response->hash;
         $response->hash = null;
 
         $this->_checkInList($response);
         $this->_checkHashArray[] = $shared_key;
+
         return hash($algorithm, implode($separator, $this->_checkHashArray)) == $hash;
     }
 
@@ -361,6 +370,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $orderId = $transaction->orderID;
 
         // Objekt zamówienia
+        /** @var Mage_Sales_Model_Order $order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 
         // Obiekt płatności zamówienia
@@ -475,10 +485,14 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         }
     }
 
+    /**
+     * @param Mage_Sales_Model_Order $order
+     */
     private function makeInvoiceFromOrder($order)
     {
         try {
             if ($order->canInvoice()) {
+                /** @var Mage_Sales_Model_Order_Invoice $invoice */
                 $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
                 if ($invoice->getTotalQty()) {
                     $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
@@ -496,47 +510,62 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         }
     }
 
-    function saveCardData($data)
+    protected function saveCardData($data)
     {
         $orderId = $data->transaction->orderID;
+        Mage::log('[Processing] SaveCardData - OrderID: '.$orderId, null, 'bluemedia.log', true);
+
+        /** @var Mage_Sales_Model_Order $order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
-        $customer_id = $order->getData('customer_id');
+
+        $customerId = $order->getData('customer_id');
+        Mage::log('[Processing] SaveCardData - CustomerID: '.$customerId, null, 'bluemedia.log', true);
+
         $status = self::TRANSACTION_NOTCONFIRMED;
         $clientHash = (string)$data->recurringData->clientHash;
-        if ($customer_id) {
+
+        Mage::log('[Processing] SaveCardData - ClientHash: '.$customerId, null, 'bluemedia.log', true);
+
+        if ($customerId) {
             $cardData = $data->cardData;
+
+            /** @var BlueMedia_BluePayment_Model_Bluecards $blueCard */
             $blueCard = Mage::getModel('bluepayment/bluecards')->getCollection()
                 ->addFieldToFilter('card_index', (int)$cardData->index)->getFirstItem();
+
             $blueCard->setData('card_index', (int)$cardData->index);
-            $blueCard->setData('customer_id', $customer_id);
+            $blueCard->setData('customer_id', $customerId);
             $blueCard->setData('validity_year', $cardData->validityYear);
             $blueCard->setData('validity_month', $cardData->validityMonth);
             $blueCard->setData('issuer', $cardData->issuer);
             $blueCard->setData('mask', $cardData->mask);
-            $blueCard->setData('client_hash', Mage::getModel('core/encryption')
-                ->encrypt($clientHash));
+            $blueCard->setData('client_hash', Mage::getModel('core/encryption')->encrypt($clientHash));
+
             $blueCard->save();
             $status = self::TRANSACTION_CONFIRMED;
         }
+
         $this->recurringResponse($clientHash, $status);
 
     }
 
-    function deleteCardData($data)
+    protected function deleteCardData($data)
     {
         $clientHash = (string)$data->recurringData->clientHash;
-        Mage::getModel('bluepayment/bluecards')->getCollection()
+
+        Mage::getModel('bluepayment/bluecards')
+            ->getCollection()
             ->addFieldToFilter('client_hash', Mage::getModel('core/encryption')
-                ->encrypt($clientHash))->delete();
+            ->encrypt($clientHash))
+            ->delete();
+
         $this->recurringResponse($clientHash, self::TRANSACTION_CONFIRMED);
     }
 
-    function recurringResponse($clientHash, $status)
+    protected function recurringResponse($clientHash, $status)
     {
-        $serviceId = $this->getConfigData('service_id');
-
-        // Klucz współdzielony
-        $sharedKey = $this->getConfigData('shared_key');
+        $serviceId = $this->getConfigData('service_id', null, 'PLN');
+        $sharedKey = $this->getConfigData('shared_key', null, 'PLN');
 
         $hashData = array($serviceId, $clientHash, $status, $sharedKey);
 
@@ -569,24 +598,50 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         echo $dom->saveXML();
     }
 
-    function get_client_ip()
+    public static function getClientIp()
     {
-        if (isset($_SERVER['HTTP_CLIENT_IP']))
+        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-        else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        else if (isset($_SERVER['HTTP_X_FORWARDED']))
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
             $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-        else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+        } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
             $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-        else if (isset($_SERVER['HTTP_FORWARDED']))
+        } elseif (isset($_SERVER['HTTP_FORWARDED'])) {
             $ipaddress = $_SERVER['HTTP_FORWARDED'];
-        else if (isset($_SERVER['REMOTE_ADDR']))
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
             $ipaddress = $_SERVER['REMOTE_ADDR'];
-        else
+        } else {
             $ipaddress = 'UNKNOWN';
-        $ipaddress = explode(', ',$ipaddress);
+        }
+
+        $ipaddress = explode(', ', $ipaddress);
+
         return end($ipaddress);
     }
 
+    /**
+     * Retrieve information from payment configuration
+     *
+     * @param string $field
+     * @param int|string|null|Mage_Core_Model_Store $storeId
+     *
+     * @return mixed
+     */
+    public function getConfigData($field, $storeId = null, $currency = null)
+    {
+        if (null === $storeId) {
+            $storeId = $this->getStore();
+        }
+
+        $code = $this->getCode();
+        if ($currency) {
+            $code = $code.'_'.strtolower($currency);
+        }
+
+        $path = 'payment/'.$code.'/'.$field;
+
+        return Mage::getStoreConfig($path, $storeId);
+    }
 }
