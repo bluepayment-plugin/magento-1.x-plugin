@@ -176,7 +176,7 @@
                 <active>0</active>
                 <model>bluepayment/abstract</model>
                 <encoding>UTF</encoding>
-                <title>Online payment BM</title>
+                <title>Online payments BM</title>
                 <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>
                 <test_address_url>https://pay-accept.bm.pl/payment</test_address_url>

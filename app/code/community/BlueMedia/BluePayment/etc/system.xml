@@ -11,7 +11,7 @@
         <payment>
             <groups>
                 <bluepayment translate="label" module="bluepayment">
-                    <label>Online payment BM</label>
+                    <label>Online payments BM</label>
                     <sort_order>670</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -27,7 +27,7 @@
                             <show_in_store>0</show_in_store>
                         </active>
                         <checkout_gateways_active translate="label">
-                            <label>Checkout Gateway Selection Active</label>
+                            <label>Gateway Selection</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>15</sort_order>
@@ -54,7 +54,7 @@
                             <show_in_store>0</show_in_store>
                         </test_mode>
                         <status_waiting_payment translate="label">
-                            <label>Status waiting payment</label>
+                            <label>Status waiting for payment</label>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
                             <frontend_type>select</frontend_type>
                             <sort_order>60</sort_order>
@@ -63,7 +63,7 @@
                             <show_in_store>0</show_in_store>
                         </status_waiting_payment>
                         <status_accept_payment translate="label">
-                            <label>Status accept payment</label>
+                            <label>Status accepted payment</label>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
                             <frontend_type>select</frontend_type>
                             <sort_order>70</sort_order>
@@ -81,7 +81,7 @@
                             <show_in_store>0</show_in_store>
                         </status_error_payment>
                         <unchangable_statuses translate="label">
-                            <label>Niezmienialne statusy</label>
+                            <label>Unchangable statuses</label>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
                             <frontend_type>multiselect</frontend_type>
                             <sort_order>90</sort_order>
@@ -90,7 +90,7 @@
                             <show_in_store>0</show_in_store>
                         </unchangable_statuses>
                         <makeinvoice translate="label">
-                            <label>Make invoice</label>
+                            <label>Make invoice after accepted payment</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>100</sort_order>
@@ -99,24 +99,24 @@
                             <show_in_store>0</show_in_store>
                         </makeinvoice>
                         <addjquery translate="label">
-                            <label>Dodaj jQuery do procesu zamówienia</label>
+                            <label>Add jQuery to order process</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip>W wiekszość sklepów opcja powinna być wyłączona.</tooltip>
+                            <tooltip>In most stores, the option should be disabled.</tooltip>
                         </addjquery>
                         <curl_payment translate="label">
-                            <label>Przedtransakcja</label>
+                            <label>cURL Payment</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>120</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Generowania krótkiego linku do płatności w banku.</tooltip>
+                            <tooltip>Generating short link to payment.</tooltip>
                         </curl_payment>
                         <iframe_payment translate="label">
                             <label>Iframe Payment</label>
@@ -126,7 +126,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Płatność w iFrame bez opuszczenie strony sklepu. Dotyczy płatności kartą oraz płatności automatycznych.</tooltip>
+                            <tooltip>Payment inside iFrame without leaving store site. Applies to card and automatic payment.</tooltip>
                         </iframe_payment>
                         <auto_payments translate="label">
                             <label>Automatic payments</label>
@@ -136,22 +136,21 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Przed uruchomieniem tej opcji skontaktuje się z Blue Media.
-                                Wymagane włączenie opcji "Wybór kanałów płatności w sklepie"</tooltip>
+                            <tooltip>Contact Blue Media before enabling this option. It requires enabled Gateway Selection.</tooltip>
                         </auto_payments>
                         <info_text translate="label">
-                            <label>Opis płatności</label>
+                            <label>Payment description</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>150</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Treść widoczna w procesie zamiawiania po wybraniu płatności BM.</tooltip>
+                            <tooltip>Visible in order process after selecting BM payment.</tooltip>
                         </info_text>
                     </fields>
                 </bluepayment>
                 <bluepayment_pln translate="label" module="bluepayment">
-                    <label>Online payment BM (PLN)</label>
+                    <label>Online payments BM (PLN)</label>
                     <sort_order>671</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -164,7 +163,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                            <tooltip>Store ID, eg. 12345</tooltip>
                         </service_id>
                         <shared_key translate="label">
                             <label>Shared key</label>
@@ -173,12 +172,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
+                            <tooltip>Alphanumeric code</tooltip>
                         </shared_key>
                     </fields>
                 </bluepayment_pln>
                 <bluepayment_eur translate="label" module="bluepayment">
-                    <label>Online payment BM (EUR)</label>
+                    <label>Online payments BM (EUR)</label>
                     <sort_order>672</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -191,7 +190,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                            <tooltip>Store ID, eg. 12345</tooltip>
                         </service_id>
                         <shared_key translate="label">
                             <label>Shared key</label>
@@ -200,12 +199,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
+                            <tooltip>Alphanumeric code</tooltip>
                         </shared_key>
                     </fields>
                 </bluepayment_eur>
                 <bluepayment_gbp translate="label" module="bluepayment">
-                    <label>Online payment BM (GBP)</label>
+                    <label>Online payments BM (GBP)</label>
                     <sort_order>673</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -218,7 +217,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                            <tooltip>Store ID, eg. 12345</tooltip>
                         </service_id>
                         <shared_key translate="label">
                             <label>Shared key</label>
@@ -227,12 +226,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
+                            <tooltip>Alphanumeric code</tooltip>
                         </shared_key>
                     </fields>
                 </bluepayment_gbp>
                 <bluepayment_usd translate="label" module="bluepayment">
-                    <label>Online payment BM (USD)</label>
+                    <label>Online payments BM (USD)</label>
                     <sort_order>674</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -245,7 +244,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                            <tooltip>Store ID, eg. 12345</tooltip>
                         </service_id>
                         <shared_key translate="label">
                             <label>Shared key</label>
@@ -254,12 +253,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
+                            <tooltip>Alphanumeric code</tooltip>
                         </shared_key>
                     </fields>
                 </bluepayment_usd>
                 <bluepayment_czk translate="label" module="bluepayment">
-                    <label>Online payment BM (CZK)</label>
+                    <label>Online payments BM (CZK)</label>
                     <sort_order>675</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -272,7 +271,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Indetyfikator sklepu zawiera tylko cyfry np. 12345</tooltip>
+                            <tooltip>Store ID, eg. 12345</tooltip>
                         </service_id>
                         <shared_key translate="label">
                             <label>Shared key</label>
@@ -281,7 +280,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Kod alfanumeryczny</tooltip>
+                            <tooltip>Alphanumeric code</tooltip>
                         </shared_key>
                     </fields>
                 </bluepayment_czk>

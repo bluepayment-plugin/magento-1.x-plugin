@@ -36,7 +36,7 @@
             <action method="addLink" translate="label" module="bluepayment" ifconfig="payment/bluepayment/auto_payments">
                 <name>viewbluepayment</name>
                 <path>bluepayment/customer/view</path>
-                <label>Saved credit cards</label>
+                <label>Saved payment cards</label>
             </action>
         </reference>
     </customer_account>

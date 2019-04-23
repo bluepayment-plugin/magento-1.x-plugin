@@ -82,7 +82,7 @@
                                    jQuery('[id^=p_method_separated_]').prop('checked', false);
                                    })()"<?php if ($this->getSelectedMethodCode() == $_code . '_2'): ?> checked="checked"<?php endif; ?>
                            class="radio"/>
-                    <label for="p_method_<?php echo $_code ?>_2">Płatności automatyczne BM</label>
+                    <label for="p_method_<?php echo $_code ?>_2"><?php echo $this->__('Automatic payment BM'); ?></label>
                 </dt>
                 <ul class="form-list" id="payment_form_<?php echo $_code ?>_2" style="display:none;">
                     <?php if ($html = $this->getPaymentMethodFormHtml($_method)): ?>

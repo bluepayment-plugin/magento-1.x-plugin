@@ -36,7 +36,7 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
             }
         }
         $this->loadLayout();
-        $this->getLayout()->getBlock('head')->setTitle($this->__('Saved Credit Cards'));
+        $this->getLayout()->getBlock('head')->setTitle($this->__('Saved Payment Cards'));
         $this->renderLayout();
     }
 

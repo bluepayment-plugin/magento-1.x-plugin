@@ -29,7 +29,7 @@ class BlueMedia_BluePayment_Block_Form extends Mage_Payment_Block_Form
     protected function _construct()
     {
         $this->setTemplate('bluepayment/form.phtml');
-        $this->setMethodTitle(Mage::helper('bluepayment')->__('Online payment BM'));
+        $this->setMethodTitle(Mage::helper('bluepayment')->__('Online payments BM'));
 
         return parent::_construct();
     }
