@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * BlueMedia_BluePayment extension
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the MIT License
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/mit-license.php
+ * 
+ * @category       Design
+ * @package        Layout
+ * @copyright      Copyright (c) 2015
+ * @license        http://opensource.org/licenses/mit-license.php MIT License
+ */
+
+-->
+<layout version="0.1.0">
+    <bluepayment_processing_create>
+        <update handle="checkout_card"/>
+        <reference name="content">
+            <block type="bluepayment/redirect" name="bluepayment_child" template="bluepayment/redirect.phtml"/>
+        </reference>
+    </bluepayment_processing_create>
+    <bluepayment_processing_back>
+        <update handle="checkout_card"/>
+        <reference name="content">
+            <block type="bluepayment/redirect" name="bluepayment_back" template="bluepayment/back.phtml"/>
+        </reference>
+    </bluepayment_processing_back>
+
+    <customer_account>
+        <reference name="customer_account_navigation">
+            <action method="addLink" translate="label" module="bluepayment" ifconfig="payment/bluepayment/auto_payments">
+                <name>viewbluepayment</name>
+                <path>bluepayment/customer/view</path>
+                <label>Saved credit cards</label>
+            </action>
+        </reference>
+    </customer_account>
+
+    <bluepayment_customer_view>
+        <update handle="customer_account"/>
+        <reference name="content">
+            <block type="bluepayment/customer" name="view.bluepayment" template="bluepayment/customer/view.phtml"/>
+        </reference>
+    </bluepayment_customer_view>
+
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addJs" ifconfig="payment/bluepayment/addjquery">
+                <script>bluepayment/jquery.min.noConflict.js</script>
+            </action>
+        </reference>
+    </checkout_onepage_index>
+
+    <checkout_onepage_paymentmethod>
+        <remove name="right"/>
+        <remove name="left"/>
+
+        <block type="checkout/onepage_payment_methods" name="root" output="toHtml" template="bluepayment/methods.phtml">
+            <action method="setMethodFormTemplate">
+                <method>purchaseorder</method>
+                <template>payment/form/purchaseorder.phtml</template>
+            </action>
+
+            <reference name="root">
+                <block type="bluepayment/payment_gateways" name="bluepayment_payment_gateways"
+                       template="bluepayment/gateways.phtml"/>
+            </reference>
+
+            <reference name="root">
+                <block type="bluepayment/payment_cards" name="bluepayment_payment_cards"
+                       template="bluepayment/cards.phtml"/>
+            </reference>
+        </block>
+    </checkout_onepage_paymentmethod>
+</layout>
