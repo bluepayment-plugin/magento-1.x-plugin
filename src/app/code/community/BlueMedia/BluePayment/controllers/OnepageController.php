@@ -17,12 +17,11 @@ class BlueMedia_BluePayment_OnepageController extends Mage_Checkout_OnepageContr
             $card_index = $this->getRequest()->getPost('payment_method_bluepayment_card_index');
 
             if ($gatewayId || $card_index) {
-                if ($gatewayId){
-                    Mage::helper('bluepayment/gateways')->setQuoteGatewayId($gatewayId);
-                } else {
-                    Mage::helper('bluepayment/gateways')->setQuoteGatewayId(
-                        Mage::getStoreConfig("payment/bluepayment/autopay_gateway"));
+                if ($card_index !== null){
+                    Mage::helper('bluepayment/gateways')->setQuoteGatewayId(Mage::getStoreConfig("payment/bluepayment/autopay_gateway"));
                     Mage::helper('bluepayment/gateways')->setQuoteCardIndex($card_index);
+                } else {
+                    Mage::helper('bluepayment/gateways')->setQuoteGatewayId($gatewayId);
                 }
             }else{
                 if (Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {

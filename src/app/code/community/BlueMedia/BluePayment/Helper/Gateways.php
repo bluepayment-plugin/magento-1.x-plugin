@@ -86,6 +86,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         $gatewaysCount = Mage::getModel('bluepayment/bluegateways')->getCollection()
             ->addFieldToFilter('gateway_status', 1)
             ->addFieldToFilter('gateway_currency', $currency)
+            ->addFieldToFilter('is_separated_method', 0)
             ->getSize();
 
         if ($gatewaysCount > 0) {

@@ -34,15 +34,12 @@
     <dl class="sp-methods" id="checkout-payment-method-load">
         <?php
         $methods = $this->getMethods();
-        $oneMethod = count($methods) <= 1;
-        ?>
-        <?php
+
         foreach ($methods as $_method):
             $_code = $_method->getCode();
 
-            if ($_code == 'bluepayment' && !Mage::helper('bluepayment/gateways')->showBlueMediaInCheckout($this->getQuote()->getQuoteCurrencyCode())):
-                continue;
-            elseif ($_code == 'bluepayment'):
+            if ($_code == 'bluepayment'):
+                if (Mage::helper('bluepayment/gateways')->showBlueMediaInCheckout($this->getQuote()->getQuoteCurrencyCode())):
                 ?>
                 <dt>
                     <input id="p_method_<?php echo $_code ?>"
@@ -70,33 +67,33 @@
                 </ul>
 
                 <?php if ($_code == 'bluepayment' && Mage::helper('bluepayment/gateways')->showAutoPayments()): ?>
-                <dt>
-                    <input id="p_method_<?php echo $_code ?>_2"
-                           value="<?php echo $_code ?>"
-                           type="radio"
-                           name="payment[method]"
-                           title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
-                           onclick="(function(){
-                               payment.switchMethod('<?php echo $_code ?>_2');
-                               jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
-                               jQuery('[id^=p_method_separated_]').prop('checked', false);
-                               })()"<?php if ($this->getSelectedMethodCode() == $_code . '_2'): ?> checked="checked"<?php endif; ?>
-                           class="radio"/>
-                    <label for="p_method_<?php echo $_code ?>_2">Płatności automatyczne BM</label>
-                </dt>
-                <ul class="form-list" id="payment_form_<?php echo $_code ?>_2" style="display:none;">
-                    <?php if ($html = $this->getPaymentMethodFormHtml($_method)): ?>
-                        <dd>
-                            <?php echo $html; ?>
-                        </dd>
-                    <?php endif; ?>
-                    <?php if ($_code == 'bluepayment' && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()): ?>
-                        <?php echo $this->getChildHtml('bluepayment_payment_cards'); ?>
-                    <?php endif; ?>
-                </ul>
+                    <dt>
+                        <input id="p_method_<?php echo $_code ?>_2"
+                               value="<?php echo $_code ?>"
+                               type="radio"
+                               name="payment[method]"
+                               title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
+                               onclick="(function(){
+                                   payment.switchMethod('<?php echo $_code ?>_2');
+                                   jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
+                                   jQuery('[id^=p_method_separated_]').prop('checked', false);
+                                   })()"<?php if ($this->getSelectedMethodCode() == $_code . '_2'): ?> checked="checked"<?php endif; ?>
+                               class="radio"/>
+                        <label for="p_method_<?php echo $_code ?>_2">Płatności automatyczne BM</label>
+                    </dt>
+                    <ul class="form-list" id="payment_form_<?php echo $_code ?>_2" style="display:none;">
+                        <?php if ($html = $this->getPaymentMethodFormHtml($_method)): ?>
+                            <dd>
+                                <?php echo $html; ?>
+                            </dd>
+                        <?php endif; ?>
+                        <?php if ($_code == 'bluepayment' && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()): ?>
+                            <?php echo $this->getChildHtml('bluepayment_payment_cards'); ?>
+                        <?php endif; ?>
+                    </ul>
+                <?php endif; ?>
             <?php endif; ?>
-
-                <?php foreach(Mage::helper('bluepayment/gateways')->getSeparatedGatewaysList($this->getQuote()->getQuoteCurrencyCode()) as $gateway): ?>
+            <?php foreach(Mage::helper('bluepayment/gateways')->getSeparatedGatewaysList($this->getQuote()->getQuoteCurrencyCode()) as $gateway): ?>
                 <dt>
                     <?php $gatewayId = $gateway->getData('gateway_id'); ?>
                     <input type="radio"
@@ -106,18 +103,18 @@
                            style="display: none;">
 
                     <input
-                        id="p_method_separated_<?php echo $_code.'_'.$gateway['entity_id'] ?>"
-                        value="<?php echo $_code ?>"
-                        name="payment[method]"
-                        title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
-                        type="radio"
-                        class="radio"
-                        onclick="(function(){
-                            jQuery('#gateway_separated_<?php echo $gatewayId ?>').prop('checked', true);
-                            payment.switchMethod('<?php echo $_code.'_separated_'.$gateway['entity_id'] ?>');
-                            jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
-                            jQuery('#payment_form_bluepayment_2 input[type=radio]').prop('checked', false);
-                            })()" />
+                            id="p_method_separated_<?php echo $_code.'_'.$gateway['entity_id'] ?>"
+                            value="<?php echo $_code ?>"
+                            name="payment[method]"
+                            title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
+                            type="radio"
+                            class="radio"
+                            onclick="(function(){
+                                    jQuery('#gateway_separated_<?php echo $gatewayId ?>').prop('checked', true);
+                                    payment.switchMethod('<?php echo $_code.'_separated_'.$gateway['entity_id'] ?>');
+                                    jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
+                                    jQuery('#payment_form_bluepayment_2 input[type=radio]').prop('checked', false);
+                                    })()" />
 
                     <label for="p_method_separated_<?php echo $_code.'_'.$gateway['entity_id'] ?>"><?php echo $gateway['gateway_name'] ?></label>
                 </dt>
