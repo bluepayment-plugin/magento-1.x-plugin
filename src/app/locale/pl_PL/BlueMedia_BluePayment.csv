@@ -44,7 +44,7 @@
 "Continue shopping","Kontynuuj zakupy"
 "Automatic payment BM","Płatność automatyczna BM"
 "Gateway Status","Status kanału"
-"Gateway ID","Identyfikator kanału"
+"Gateway ID","ID kanału"
 "Bank Name","Nazwa banku"
 "Gateway Name","Nazwa"
 "Gateway Type","Typ"
@@ -58,3 +58,4 @@
 "NO","NIE"
 "ENABLED","Aktywny"
 "DISABLED","Nieaktywny"
+"Own Name","Własna nazwa"

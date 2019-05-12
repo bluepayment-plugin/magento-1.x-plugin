@@ -97,13 +97,13 @@
                 <dt>
                     <?php $gatewayId = $gateway->getData('gateway_id'); ?>
                     <input type="radio"
-                           value="<?php echo $gateway['gateway_id']; ?>"
+                           value="<?php echo $gatewayId; ?>"
                            name="payment_method_bluepayment_gateway"
                            id="gateway_separated_<?php echo $gatewayId ?>"
                            style="display: none;">
 
                     <input
-                            id="p_method_separated_<?php echo $_code.'_'.$gateway['entity_id'] ?>"
+                            id="p_method_separated_<?php echo $_code.'_'.$gateway->getData('entity_id') ?>"
                             value="<?php echo $_code ?>"
                             name="payment[method]"
                             title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
@@ -111,12 +111,14 @@
                             class="radio"
                             onclick="(function(){
                                     jQuery('#gateway_separated_<?php echo $gatewayId ?>').prop('checked', true);
-                                    payment.switchMethod('<?php echo $_code.'_separated_'.$gateway['entity_id'] ?>');
+                                    payment.switchMethod('<?php echo $_code.'_separated_'.$gateway->getData('entity_id') ?>');
                                     jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
                                     jQuery('#payment_form_bluepayment_2 input[type=radio]').prop('checked', false);
                                     })()" />
 
-                    <label for="p_method_separated_<?php echo $_code.'_'.$gateway['entity_id'] ?>"><?php echo $gateway['gateway_name'] ?></label>
+                    <label for="p_method_separated_<?php echo $_code.'_'.$gateway->getData('entity_id') ?>">
+                        <?php echo $gateway->getName() ?>
+                    </label>
                 </dt>
             <?php endforeach; ?>
             <?php endif; ?>

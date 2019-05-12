@@ -17,8 +17,6 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit extends Mage_Admin
             "class" => "save",
         ), -100);
 
-
-
         $this->_formScripts[] = "
             function saveAndContinueEdit(){
                 editForm.submit($('edit_form').action+'back/edit/');

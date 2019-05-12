@@ -90,8 +90,11 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      */
     protected $_isInitializeNeeded = true;
 
-    protected $_orderParams = array('ServiceID', 'OrderID', 'Amount', 'GatewayID', 'Currency',
-        'CustomerEmail', 'CustomerIP', 'RecurringAcceptanceState', 'RecurringAction', 'ClientHash', 'ScreenType');
+    protected $_orderParams = array(
+        'ServiceID', 'OrderID', 'Amount', 'GatewayID', 'Currency',
+        'CustomerEmail', 'Language', 'CustomerIP', 'RecurringAcceptanceState',
+        'RecurringAction', 'ClientHash', 'ScreenType'
+    );
 
     /**
      * Zwraca adres url kontrolera do przekierowania po potwierdzeniu zamówienia
@@ -160,6 +163,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             'Currency' => $currency,
             'CustomerEmail' => $customerEmail,
             'CustomerIP' => self::getClientIp(),
+            'Language' => self::getLanguage(),
         );
 
         if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
@@ -197,6 +201,28 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $params['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
 
         return $params;
+    }
+
+    public function getLanguage()
+    {
+        $locale = Mage::app()->getLocale()->getLocaleCode();
+
+        /* English */
+        if (strpos($locale, 'en_') !== false) {
+            return "EN";
+        }
+
+        /* German */
+        if (strpos($locale, 'de_') !== false) {
+            return "DE";
+        }
+
+//        /* Czech */
+//        if (strpos($locale, 'cs_') !== false) {
+//            return "CS";
+//        }
+
+        return "PL";
     }
 
     function _sortParams($params)

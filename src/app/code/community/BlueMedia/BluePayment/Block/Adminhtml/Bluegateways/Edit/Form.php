@@ -12,6 +12,7 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Form extends Mage_
         ));
         $form->setUseContainer(true);
         $this->setForm($form);
+
         return parent::_prepareForm();
     }
 }

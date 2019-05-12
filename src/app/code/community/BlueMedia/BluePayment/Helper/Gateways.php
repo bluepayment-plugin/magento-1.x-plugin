@@ -167,6 +167,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                 'gateway_status' => $blueGateways->getData('gateway_status'),
                 'bank_name' => $blueGateways->getData('bank_name'),
                 'gateway_name' => $blueGateways->getData('gateway_name'),
+                'own_name' => $blueGateways->getData('own_name'),
                 'gateway_description' => $blueGateways->getData('gateway_description'),
                 'is_separated_method' => $blueGateways->getData('is_separated_method'),
                 'gateway_sort_order' => $blueGateways->getData('gateway_sort_order'),

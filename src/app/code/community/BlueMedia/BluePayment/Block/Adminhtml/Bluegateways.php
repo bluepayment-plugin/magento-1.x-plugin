@@ -1,9 +1,9 @@
 <?php
 
-class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways extends Mage_Adminhtml_Block_Widget_Grid_Container {
-
-    public function __construct() {
-
+class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways extends Mage_Adminhtml_Block_Widget_Grid_Container
+{
+    public function __construct()
+    {
         $this->_controller = "adminhtml_bluegateways";
         $this->_blockGroup = "bluepayment";
         $this->_headerText = Mage::helper("bluepayment")->__("Bluegateways Manager");
@@ -19,8 +19,8 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways extends Mage_Adminhtml_
         ));
     }
 
-    public function getSyncGatewaysUrl() {
+    public function getSyncGatewaysUrl()
+    {
         return $this->getUrl('admin_bluepayment/adminhtml_bluegateways/sync');
     }
-
 }

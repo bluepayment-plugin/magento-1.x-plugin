@@ -2,14 +2,11 @@
 
 class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends Mage_Adminhtml_Block_Widget_Form
 {
-
     protected function _prepareForm()
     {
-
         $form = new Varien_Data_Form();
         $this->setForm($form);
         $fieldset = $form->addFieldset("bluepayment_form", array("legend" => Mage::helper("bluepayment")->__("Item information")));
-
 
         $fieldset->addField('gateway_status', 'select', array(
             'label' => Mage::helper('bluepayment')->__('Gateway Status'),
@@ -32,15 +29,19 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'name' => 'bank_name',
         ));
         $fieldset->addField('gateway_name', 'text', array(
+            'disabled' => true,
             'label' => Mage::helper('bluepayment')->__('Gateway Name'),
             'name' => 'gateway_name',
+        ));
+        $fieldset->addField('own_name', 'text', array(
+            'label' => Mage::helper('bluepayment')->__('Own Name'),
+            'name' => 'own_name',
         ));
         $fieldset->addField('gateway_type', 'text', array(
             'disabled' => true,
             'label' => Mage::helper('bluepayment')->__('Gateway Type'),
             'name' => 'gateway_type',
         ));
-
         $fieldset->addField("gateway_description", "text", array(
             "label" => Mage::helper("bluepayment")->__("Gateway Description"),
             "name" => "gateway_description",
@@ -79,14 +80,13 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit_Tab_Form extends M
             'name' => 'status_date',
         ));
 
-
         if (Mage::getSingleton("adminhtml/session")->getBluegatewaysData()) {
             $form->setValues(Mage::getSingleton("adminhtml/session")->getBluegatewaysData());
             Mage::getSingleton("adminhtml/session")->setBluegatewaysData(null);
         } elseif (Mage::registry("bluegateways_data")) {
             $form->setValues(Mage::registry("bluegateways_data")->getData());
         }
+
         return parent::_prepareForm();
     }
-
 }
