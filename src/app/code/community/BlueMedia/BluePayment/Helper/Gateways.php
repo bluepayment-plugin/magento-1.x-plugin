@@ -9,6 +9,48 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
     public $currencies = array('PLN', 'GBP', 'EUR', 'USD', 'CZK');
 
+    const DEFAULT_SORT_ORDER = [
+        '', // Avoid pushing first element to the end
+        509, // BLIK
+        1503, // Kartowa płatność automatyczna
+        1500, // Płatność kartą
+        1512, // Google Pay
+        1511, // Visa Checkout
+        106, // Tylko na teście
+        68, // Płać z ING
+        3, // mTransfer
+        1063, // Płacę z IPKO
+        27, // Santander online
+        52, // Pekao24 PBL
+        85, // Millennium Bank PBL
+        95, // Płacę z Alior Bankiem
+        59, // CA przelew online
+        79, // Eurobank - płatność online
+        1064, // Płacę z Inteligo
+        1035, // BNP Paribas - płacę z Pl@net
+        513, // Getin Bank
+        1010, // T-Mobile Usługi Bankowe
+        90, // Płacę z Citi Handlowy
+        76, // BNP Paribas-Płacę z żółty online
+        108, // e-transfer Pocztowy24
+        517, // NestPrzelew
+        131, //
+        86, // Płać z BOŚ Bank
+        98, // PBS Bank - przelew 24
+        117, // Toyota Bank Pay Way
+        1050, // Płacę z neoBANK
+        514, // Noble Bank
+        109, // EnveloBank
+        1507, // Bank Spółdzielczy w Sztumie PBL
+        1510, // Bank Spółdzielczy Lututów PBL
+        1515, // Bank Spółdzielczy w Toruniu PBL
+        1517, // Bank Spółdzielczy w Rumi PBL
+        21, // Przelew Volkswagen Bank
+        35, // Spółdzielcza Grupa Bankowa
+        9, // Mam konto w innym banku
+        1506, // Alior Raty
+    ];
+
     public function syncGateways()
     {
         foreach ($this->currencies as $currency) {
@@ -183,19 +225,26 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
     public function getSeparatedGatewaysList($currency = 'PLN')
     {
-        $gateways = Mage::getModel('bluepayment/bluegateways')->getCollection()
+        $q = Mage::getModel('bluepayment/bluegateways')->getCollection()
             ->addFieldToFilter('gateway_status', 1)
             ->addFieldToFilter('gateway_currency', $currency)
             ->addFieldToFilter('is_separated_method', 1);
 
         // Order by gateway_sort_order
         // but 0 goes to the end of the list
-        $gateways->getSelect()->order(
+        $q->getSelect()->order(
             new Zend_Db_Expr(
                 "CASE WHEN `gateway_sort_order` = 0 THEN 999999
                     ELSE `gateway_sort_order` END"
             )
         );
+
+        $gateways = [];
+        foreach ($q as $gateway) {
+            $gateways[] = $gateway;
+        }
+
+        $this->sortGateways($gateways);
 
         return $gateways;
     }
@@ -278,6 +327,26 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     public function getOneClickGatewayId()
     {
         return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
+    }
+
+    public static function sortGateways(&$array) {
+        usort($array, function ($a, $b) {
+            $aPos = (int)$a->getData('gateway_sort_order');
+            $bPos = (int)$b->getData('gateway_sort_order');
+
+            if ($aPos == $bPos) {
+                $aPos = array_search($a->getData('gateway_id'), self::DEFAULT_SORT_ORDER);
+                $bPos = array_search($b->getData('gateway_id'), self::DEFAULT_SORT_ORDER);
+            } elseif ($aPos == 0) {
+                return true;
+            } elseif ($bPos == 0) {
+                return false;
+            }
+
+            return $aPos >= $bPos;
+        });
+
+        return $array;
     }
 
     /**

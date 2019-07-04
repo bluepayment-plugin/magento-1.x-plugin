@@ -8,7 +8,7 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
     public function getGatewaysList($currency = 'PLN')
     {
         if (!$this->_gatewayList) {
-            $this->_gatewayList = Mage::getModel('bluepayment/bluegateways')
+            $q = Mage::getModel('bluepayment/bluegateways')
                 ->getCollection()
                 ->addFieldToFilter('gateway_status', 1)
                 ->addFieldToFilter('gateway_currency', $currency)
@@ -17,13 +17,20 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
 
             // Order by gateway_sort_order
             // but 0 goes to the end of the list
-             $this->_gatewayList->getSelect()->order(
+            $q->getSelect()->order(
                  new Zend_Db_Expr(
                      "CASE WHEN `gateway_sort_order` = 0 THEN 999999
                     ELSE `gateway_sort_order` END"
                  )
              );
 
+             $gatewayList = [];
+            foreach ($q as $gateway) {
+                $gatewayList[] = $gateway;
+            }
+
+            BlueMedia_BluePayment_Helper_Gateways::sortGateways($gatewayList);
+            $this->_gatewayList = $gatewayList;
         }
 
         return $this->_gatewayList;
