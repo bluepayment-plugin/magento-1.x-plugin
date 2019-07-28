@@ -25,25 +25,26 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
 {
     public function getUrlWithParams()
     {
-        $abstract_model = Mage::getModel('bluepayment/abstract');
-        $params = $abstract_model->getFormRedirectFields($this->getOrder());
+        $abstractModel = Mage::getModel('bluepayment/abstract');
+        $params = $abstractModel->getFormRedirectFields($this->getOrder());
 
         Mage::log('[Redirect] Response - '.json_encode($params), null, 'bluemedia.log', true);
 
         $orderID = $params['OrderID'];
-        $curl_payment = Mage::getStoreConfig("payment/bluepayment/curl_payment");
-        if (!$curl_payment) {
-            return array(false, $abstract_model->getUrlGateway() . '?' . http_build_query($params));
+        $curlPayment = Mage::getStoreConfig("payment/bluepayment/curl_payment");
+        if (!$curlPayment) {
+            return array(false, $abstractModel->getUrlGateway() . '?' . http_build_query($params));
         }
 
         $fields = (is_array($params)) ? http_build_query($params) : $params;
 
-        $curl = curl_init($abstract_model->getUrlGateway());
+        $curl = curl_init($abstractModel->getUrlGateway());
         if (array_key_exists('ClientHash', $params)) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, array('BmHeader: pay-bm'));
         } else {
             curl_setopt($curl, CURLOPT_HTTPHEADER, array('BmHeader: pay-bm-continue-transaction-url'));
         }
+
         curl_setopt($curl, CURLOPT_POSTFIELDS, $fields);
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -77,7 +78,7 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         );
     }
 
-    function generateSuccessUrl($orderId)
+    public function generateSuccessUrl($orderId)
     {
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
         $currency = $order->getOrderCurrency()->getCode();
@@ -86,14 +87,16 @@ class BlueMedia_BluePayment_Block_Redirect extends Mage_Core_Block_Template
         $sharedKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
         $hashData = array($serviceId, $orderId, $sharedKey);
         $hashLocal = Mage::helper('bluepayment')->generateAndReturnHash($hashData);
-        return Mage::getUrl('bluepayment/processing/back') . '?' . http_build_query(array(
+        return Mage::getUrl('bluepayment/processing/back') . '?' . http_build_query(
+            array(
                 'ServiceID'=> $serviceId,
                 'OrderID' => $orderId,
                 'Hash' => $hashLocal
-            ));
+            )
+        );
     }
 
-    function generateFailureUrl()
+    public function generateFailureUrl()
     {
         return Mage::getUrl('bluepayment/processing/back');
     }
