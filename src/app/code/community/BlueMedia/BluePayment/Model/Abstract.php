@@ -318,21 +318,6 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
     }
 
     /**
-     * Sprawdza czy zamówienie zostało zakończone, zamknięte, lub anulowane
-     *
-     * @param object $order
-     *
-     * @return boolean
-     */
-    public function isOrderChangable($order)
-    {
-        $status        = $order->getStatus();
-        $unchangeableStatuses = explode(',', $this->getConfigData('unchangable_statuses'));
-
-        return !in_array($status, $unchangeableStatuses);
-    }
-
-    /**
      * Potwierdzenie w postaci xml o prawidłowej/nieprawidłowej transakcji
      *
      * @param string $orderId
@@ -458,26 +443,27 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $paymentStatus = (string)$paymentStatus;
 
         try {
-            // Jeśli status zamówienia jest możliwy do zmiany i status płatności zamówienia jest różny od statusu
-            // płatności z bramki
-            if ($this->isOrderChangable($order) && $orderPaymentState != $paymentStatus) {
-                switch ($paymentStatus) {
-                    // Jeśli transakcja została rozpoczęta
-                    case self::PAYMENT_STATUS_PENDING:
-                        // Jeśli aktualny status zamówienia jest różny od ustawionego jako "oczekiwanie na płatność"
-                        if ($paymentStatus != $orderPaymentState) {
-                            // Powiadomienie mailowe dla klienta
-                            $order->setState(
-                                $orderStatusWaitingState, $statusWaitingPayment,
-                                'Rozpoczęcię płatności przez Płatności online BM', true
-                            )
-                                ->sendOrderUpdateEmail(true)
-                                ->save();
-                        }
-                        break;
+            switch ($paymentStatus) {
+                // Jeśli transakcja została rozpoczęta
+                case self::PAYMENT_STATUS_PENDING:
+                    if ($this->saveUpdate($orderId, $statusWaitingPayment)) {
+                        // Powiadomienie mailowe dla klienta
+                        $order->setState(
+                            $orderStatusWaitingState, $statusWaitingPayment,
+                            '[PENDING] Rozpoczęcię płatności przez Płatności online BM', true
+                        )
+                            ->sendOrderUpdateEmail(true)
+                            ->save();
+                    } else {
+                        $order
+                            ->addStatusHistoryComment('[PENDING] Zignorowany ITN')
+                            ->save();
+                    }
+                    break;
 
-                    // Jeśli transakcja została zakończona poprawnie
-                    case self::PAYMENT_STATUS_SUCCESS:
+                // Jeśli transakcja została zakończona poprawnie
+                case self::PAYMENT_STATUS_SUCCESS:
+                    if ($this->saveUpdate($orderId, $statusAcceptPayment)) {
                         $transaction = $orderPayment->setTransactionId((string)$remoteId);
                         $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_SUCCESS . ']')
                             ->registerCaptureNotification($amount)
@@ -495,11 +481,16 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                         if ($this->getConfigData('makeinvoice')) {
                             $this->makeInvoiceFromOrder($order);
                         }
-                        break;
+                    } else {
+                        $order
+                            ->addStatusHistoryComment('[SUCCESS] Zignorowany ITN')
+                            ->save();
+                    }
+                    break;
 
-                    // Jeśli transakcja nie została zakończona poprawnie
-                    case self::PAYMENT_STATUS_FAILURE:
-
+                // Jeśli transakcja nie została zakończona poprawnie
+                case self::PAYMENT_STATUS_FAILURE:
+                    if ($this->saveUpdate($orderId, $statusErrorPayment)) {
                         // Jeśli aktualny status zamówienia jest równy ustawionemu jako "oczekiwanie na płatność"
                         if ($orderPaymentState != $paymentStatus) {
                             // Powiadomienie mailowe dla klienta
@@ -510,10 +501,14 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                                 ->sendOrderUpdateEmail(true)
                                 ->save();
                         }
-                        break;
-                    default:
-                        break;
-                }
+                    } else {
+                        $order
+                            ->addStatusHistoryComment('[FAILURE] Zignorowany ITN')
+                            ->save();
+                    }
+                    break;
+                default:
+                    break;
             }
 
             $orderPayment->setAdditionalInformation('bluepayment_state', $paymentStatus);
@@ -683,5 +678,33 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $path = 'payment/'.$code.'/'.$field;
 
         return Mage::getStoreConfig($path, $storeId);
+    }
+
+    /**
+     * Aktualizuje jedno pole w bazie danych - tylko w celu sprawdzenia, czy zamówienie powinno zostać zaktualizowane
+     * (status nie jest taki sam lub nie jest na liście "niezmienialnych statusów"). Metoda wykorzystywana w celu
+     * uniknięcia wyścigu ITNów (kiedy sklep otrzymuje dwa różne ITNy dla tego samego zamówienia w tym samym czasie i
+     * dane dot. zamówienia nie są akutalizowane między nimi).
+     *
+     * @param $orderId
+     * @param array $saveData
+     *
+     * @return boolean
+     */
+    protected function saveUpdate($orderId, $orderStatus)
+    {
+        $unchangeableStatuses = explode(',', $this->getConfigData('unchangable_statuses'));
+        $unchangeableStatuses[] = $orderStatus;
+
+        $saveData = array('status' => $orderStatus);
+
+        $db = Mage::getSingleton('core/resource')->getConnection('core_write');
+
+        $where = $db->quoteInto('increment_id = ?', $orderId);
+        $where .= $db->quoteInto(' AND status NOT IN (?)', $unchangeableStatuses);
+
+        $success = $db->update('sales_flat_order', $saveData, $where);
+
+        return $success > 0 ? true : false;
     }
 }

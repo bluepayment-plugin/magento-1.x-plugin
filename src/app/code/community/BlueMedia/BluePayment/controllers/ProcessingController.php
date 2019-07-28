@@ -164,6 +164,10 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
      */
     public function statusAction()
     {
+        /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
+        $abstract = Mage::getModel('bluepayment/abstract');
+        $result = 'ERROR';
+
         try {
             // Parametry z request
             $params = $this->getRequest()->getParams();
@@ -185,9 +189,7 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($xmlString);
 
-                /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
-                $abstract = Mage::getModel('bluepayment/abstract');
-                return $abstract->processStatusPayment($simpleXml);
+                $result = $abstract->processStatusPayment($simpleXml);
             } else if (array_key_exists('recurring', $params)) {
                 $paramRecurring = $params['recurring'];
                 $xmlString = base64_decode($paramRecurring);
@@ -197,13 +199,18 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Odczytanie parametrów z xml-a
                 $simpleXml = simplexml_load_string($xmlString);
 
-                /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
-                $abstract = Mage::getModel('bluepayment/abstract');
-                return $abstract->processStatusPayment($simpleXml);
+                $result = $abstract->processStatusPayment($simpleXml);
             }
         } catch (Exception $e) {
             Mage::logException($e);
         }
+
+        $this->getResponse()->clearHeaders()->setHeader(
+            'Content-type',
+            'application/xml'
+        );
+
+        $this->getResponse()->setBody($result);
     }
 
 }
