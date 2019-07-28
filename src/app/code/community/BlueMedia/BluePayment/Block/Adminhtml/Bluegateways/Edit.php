@@ -11,11 +11,13 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit extends Mage_Admin
         $this->_updateButton("save", "label", Mage::helper("bluepayment")->__("Save Item"));
         $this->_updateButton("delete", "label", Mage::helper("bluepayment")->__("Delete Item"));
 
-        $this->_addButton("saveandcontinue", array(
+        $this->_addButton(
+            "saveandcontinue", array(
             "label" => Mage::helper("bluepayment")->__("Save And Continue Edit"),
             "onclick" => "saveAndContinueEdit()",
             "class" => "save",
-        ), -100);
+            ), -100
+        );
 
         $this->_formScripts[] = "
             function saveAndContinueEdit(){
@@ -27,10 +29,12 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways_Edit extends Mage_Admin
     public function getHeaderText()
     {
         if (Mage::registry("bluegateways_data") && Mage::registry("bluegateways_data")->getId()) {
-            return Mage::helper("bluepayment")->__("Edit Item '%s'", $this->htmlEscape(Mage::registry("bluegateways_data")->getId()));
+            return Mage::helper("bluepayment")->__(
+                "Edit Item '%s'",
+                $this->htmlEscape(Mage::registry("bluegateways_data")->getId())
+            );
         } else {
             return Mage::helper("bluepayment")->__("Add Item");
         }
     }
-
 }

@@ -22,8 +22,8 @@
  * @category    BlueMedia
  * @package     BlueMedia_BluePayment
  */
-class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Front_Action {
-
+class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Front_Action
+{
     /**
      * Zwraca singleton dla Checkout Session Model
      *
@@ -64,16 +64,23 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 if (method_exists($orderConfig, 'getStatusStates')) {
                     $orderStatusWaitingStates = $orderConfig->getStatusStates($statusWaitingPayment);
                     $keyWaiting = array_search($statusWaitingPayment, $orderStatusWaitingStates);
-                    $orderStatusWaitingState = $keyWaiting != '' ? $orderStatusWaitingStates[$keyWaiting] : Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+
+                    $orderStatusWaitingState = $keyWaiting != ''
+                        ? $orderStatusWaitingStates[$keyWaiting]
+                        : Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
                 } else {
                     $orderStatusWaitingState = Mage_Sales_Model_Order::STATE_NEW;
                 }
 
-                $order->setState($orderStatusWaitingState, Mage::getStoreConfig("payment/bluepayment/status_waiting_payment"))
-                        ->save();
+                $order->setState(
+                    $orderStatusWaitingState,
+                    Mage::getStoreConfig("payment/bluepayment/status_waiting_payment")
+                )->save();
             } else {
-                $order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, Mage_Sales_Model_Order::STATE_PENDING_PAYMENT)
-                        ->save();
+                $order->setState(
+                    Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
+                    Mage_Sales_Model_Order::STATE_PENDING_PAYMENT
+                )->save();
             }
 
             $order->sendNewOrderEmail();
@@ -81,9 +88,11 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
             // Załadowanie layout
             $this->loadLayout();
             $this->getLayout()->getBlock('bluepayment_child')->setOrder($order);
+
             $this->renderLayout();
         } catch (Exception $e) {
             Mage::logException($e);
+
             parent::_redirect('checkout/cart');
         }
     }
@@ -126,9 +135,9 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 // Sprawdzenie zgodności hash-y oraz reszty parametrów 
                 if ($hash == $hashLocal) {
                     $session = Mage::getSingleton('checkout/session');
-                    $order_id = $session->getLastRealOrderId();
+                    $orderId = $session->getLastRealOrderId();
 
-                    if (is_null($order_id)) {
+                    if ($orderId === null) {
                         $this->loadLayout();
                         $this->getLayout()->getBlock('bluepayment_back');//->setOrder($orderId);
                         $this->renderLayout();
@@ -169,28 +178,28 @@ class BlueMedia_BluePayment_ProcessingController extends Mage_Core_Controller_Fr
                 $paramTransactions = $params['transactions'];
 
                 // Odkodowanie parametru transakcji
-                $base64transactions = base64_decode($paramTransactions);
+                $xmlString = base64_decode($paramTransactions);
 
-                Mage::log('[Processing] Transactions - '.$base64transactions, null, 'bluemedia.log', true);
+                Mage::log('[Processing] Transactions - '.$xmlString, null, 'bluemedia.log', true);
 
                 // Odczytanie parametrów z xml-a
-                $simpleXml = simplexml_load_string($base64transactions);
+                $simpleXml = simplexml_load_string($xmlString);
 
                 /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
                 $abstract = Mage::getModel('bluepayment/abstract');
-                $abstract->processStatusPayment($simpleXml);
+                return $abstract->processStatusPayment($simpleXml);
             } else if (array_key_exists('recurring', $params)) {
                 $paramRecurring = $params['recurring'];
-                $base64recurring = base64_decode($paramRecurring);
+                $xmlString = base64_decode($paramRecurring);
 
-                Mage::log('[Processing] Recurring - '.$base64recurring, null, 'bluemedia.log', true);
+                Mage::log('[Processing] Recurring - '.$xmlString, null, 'bluemedia.log', true);
 
                 // Odczytanie parametrów z xml-a
-                $simpleXml = simplexml_load_string($base64recurring);
+                $simpleXml = simplexml_load_string($xmlString);
 
                 /** @var BlueMedia_BluePayment_Model_Abstract $abstract */
                 $abstract = Mage::getModel('bluepayment/abstract');
-                $abstract->processStatusPayment($simpleXml);
+                return $abstract->processStatusPayment($simpleXml);
             }
         } catch (Exception $e) {
             Mage::logException($e);

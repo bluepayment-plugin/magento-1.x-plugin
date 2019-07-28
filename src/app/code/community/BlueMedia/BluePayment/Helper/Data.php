@@ -32,19 +32,12 @@ class BlueMedia_BluePayment_Helper_Data extends Mage_Payment_Helper_Data
     public function generateAndReturnHash($data)
     {
         $algorithm = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
-
         $separator = Mage::getStoreConfig("payment/bluepayment/hash_separator");
-
-        $values_array = array_values($data);
-
-        $values_array_filter = array_filter(($values_array));
-
-        $comma_separated = implode(",", $values_array_filter);
-
-        $replaced = str_replace(",", $separator, $comma_separated);
-
+        $arrayValues = array_values($data);
+        $arrayValuesFilter = array_filter(($arrayValues));
+        $commaSeparated = implode(",", $arrayValuesFilter);
+        $replaced = str_replace(",", $separator, $commaSeparated);
         $hash = hash($algorithm, $replaced);
-
         return $hash;
     }
 }

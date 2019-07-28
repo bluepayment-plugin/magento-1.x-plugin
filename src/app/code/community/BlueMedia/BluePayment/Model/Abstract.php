@@ -25,7 +25,7 @@
 class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abstract
 {
 
-    private $_checkHashArray = array();
+    protected $_checkHashArray = array();
 
     /**
      * Stałe statusów płatności
@@ -167,16 +167,17 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         );
 
         if ($gatewayId != 0 && Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
-
             $params['GatewayID'] = $gatewayId;
 
-            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/autopay_gateway") && Mage::getSingleton('customer/session')->isLoggedIn()) {
-                $card_index = Mage::helper('bluepayment/gateways')->getQuoteCardIndex();
+            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/autopay_gateway")
+                && Mage::getSingleton('customer/session')->isLoggedIn()
+            ) {
+                $cardIndex = Mage::helper('bluepayment/gateways')->getQuoteCardIndex();
                 $customerData = Mage::getSingleton('customer/session')->getCustomer();
                 $card = Mage::getModel('bluepayment/bluecards')->getCollection()
                     ->addFieldToFilter('customer_id', $customerData->getId())
-                    ->addFieldToFilter('card_index', $card_index)->getFirstItem();
-                if ($card_index == -1 || !$card) {
+                    ->addFieldToFilter('card_index', $cardIndex)->getFirstItem();
+                if ($cardIndex == -1 || !$card) {
                     $params['RecurringAcceptanceState'] = 'ACCEPTED';
                     $params['RecurringAction'] = 'INIT_WITH_PAYMENT';
                 } else {
@@ -185,13 +186,16 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                         ->decrypt($card->getData('client_hash'));
                 }
             }
+
             if (Mage::getStoreConfig("payment/bluepayment/iframe_payment") &&
-                in_array($gatewayId, array(
+                in_array(
+                    $gatewayId, array(
                     Mage::getStoreConfig("payment/bluepayment/autopay_gateway"),
-                    Mage::getStoreConfig("payment/bluepayment/card_gateway")))){
+                    Mage::getStoreConfig("payment/bluepayment/card_gateway"))
+                )
+            ) {
                 $params['ScreenType'] = 'IFRAME';
             }
-
         }
 
         $params = $this->_sortParams($params);
@@ -217,7 +221,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             return "DE";
         }
 
-//        /* Czech */
+//         Czech */
 //        if (strpos($locale, 'cs_') !== false) {
 //            return "CS";
 //        }
@@ -225,7 +229,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         return "PL";
     }
 
-    function _sortParams($params)
+    protected function _sortParams($params)
     {
         $ordered = array();
         foreach ($this->_orderParams as $value) {
@@ -234,6 +238,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                 unset($params[$value]);
             }
         }
+
         return $ordered + $params;
     }
 
@@ -257,15 +262,12 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         if ($this->_validAll($response, $order)) {
             switch ($response->getName()) {
                 case 'recurringActivation':
-                    $this->saveCardData($response);
-                    break;
+                    return $this->saveCardData($response);
                 case 'recurringDeactivation':
-                    $this->deleteCardData($response);
-                    break;
+                    return $this->deleteCardData($response);
                 case 'transactionList';
-                    $transaction_xml = $response->transactions->transaction;
-                    $this->updateStatusTransactionAndOrder($transaction_xml);
-                    break;
+                    $transactionXml = $response->transactions->transaction;
+                    return $this->updateStatusTransactionAndOrder($transactionXml);
                 default:
                     break;
             }
@@ -278,19 +280,19 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param $response
      * @param $order
      *
-     * @return booleasn
+     * @return bool
      */
     public function _validAll($response, $order)
     {
         $currency = $order->getOrderCurrency()->getCode();
 
-        $service_id = $this->getConfigData('service_id', null, $currency);
-        $shared_key = $this->getConfigData('shared_key', null, $currency);
+        $serviceId = $this->getConfigData('service_id', null, $currency);
+        $sharedKey = $this->getConfigData('shared_key', null, $currency);
 
         $algorithm = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
         $separator = Mage::getStoreConfig("payment/bluepayment/hash_separator");
 
-        if ($service_id != $response->serviceID) {
+        if ($serviceId != $response->serviceID) {
             return false;
         }
 
@@ -299,12 +301,12 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
         $response->hash = null;
 
         $this->_checkInList($response);
-        $this->_checkHashArray[] = $shared_key;
+        $this->_checkHashArray[] = $sharedKey;
 
         return hash($algorithm, implode($separator, $this->_checkHashArray)) == $hash;
     }
 
-    private function _checkInList($list)
+    protected function _checkInList($list)
     {
         foreach ((array)$list as $row) {
             if (is_object($row)) {
@@ -336,7 +338,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
      * @param string $orderId
      * @param string $confirmation
      *
-     * @return XML
+     * @return string
      */
     protected function returnConfirmation($order, $confirmation)
     {
@@ -375,7 +377,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         $dom->appendChild($confirmationList);
 
-        echo $dom->saveXML();
+        return $dom->saveXML();
     }
 
     /**
@@ -448,7 +450,9 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                 $statusErrorPayment = Mage_Sales_Model_Order::STATE_NEW;
             }
         } else {
-            $statusErrorPayment = $order->getConfig()->getStateDefaultStatus(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW);
+            $statusErrorPayment = $order->getConfig()->getStateDefaultStatus(
+                Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW
+            );
         }
 
         $paymentStatus = (string)$paymentStatus;
@@ -463,38 +467,46 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                         // Jeśli aktualny status zamówienia jest różny od ustawionego jako "oczekiwanie na płatność"
                         if ($paymentStatus != $orderPaymentState) {
                             // Powiadomienie mailowe dla klienta
-                            $order->setState($orderStatusWaitingState, $statusWaitingPayment,
-                                'Rozpoczęcię płatności przez Płatności online BM', true)
+                            $order->setState(
+                                $orderStatusWaitingState, $statusWaitingPayment,
+                                'Rozpoczęcię płatności przez Płatności online BM', true
+                            )
                                 ->sendOrderUpdateEmail(true)
                                 ->save();
                         }
                         break;
+
                     // Jeśli transakcja została zakończona poprawnie
                     case self::PAYMENT_STATUS_SUCCESS:
-
                         $transaction = $orderPayment->setTransactionId((string)$remoteId);
                         $transaction->setPreparedMessage('[' . self::PAYMENT_STATUS_SUCCESS . ']')
                             ->registerCaptureNotification($amount)
                             ->setIsTransactionApproved(true)
                             ->setIsTransactionClosed(true)
                             ->save();
-                        $order->setState($orderStatusAcceptState, $statusAcceptPayment,
-                            'Potwierdzenie płatności przez bramkę Płatności online BM', true)
+
+                        $order->setState(
+                            $orderStatusAcceptState, $statusAcceptPayment,
+                            'Potwierdzenie płatności przez bramkę Płatności online BM', true
+                        )
                             ->sendOrderUpdateEmail(false)
                             ->save();
-                        $make_invoice = $this->getConfigData('makeinvoice');
-                        if ($make_invoice) {
+
+                        if ($this->getConfigData('makeinvoice')) {
                             $this->makeInvoiceFromOrder($order);
                         }
                         break;
+
                     // Jeśli transakcja nie została zakończona poprawnie
                     case self::PAYMENT_STATUS_FAILURE:
 
                         // Jeśli aktualny status zamówienia jest równy ustawionemu jako "oczekiwanie na płatność"
                         if ($orderPaymentState != $paymentStatus) {
                             // Powiadomienie mailowe dla klienta
-                            $order->setState($orderStatusErrorState, $statusErrorPayment,
-                                'Anulowanie płatności przez bramkę Płatności online BM', true)
+                            $order->setState(
+                                $orderStatusErrorState, $statusErrorPayment,
+                                'Anulowanie płatności przez bramkę Płatności online BM', true
+                            )
                                 ->sendOrderUpdateEmail(true)
                                 ->save();
                         }
@@ -503,9 +515,10 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                         break;
                 }
             }
+
             $orderPayment->setAdditionalInformation('bluepayment_state', $paymentStatus);
             $orderPayment->save();
-            $this->returnConfirmation($order, self::TRANSACTION_CONFIRMED);
+            return $this->returnConfirmation($order, self::TRANSACTION_CONFIRMED);
         } catch (Exception $e) {
             Mage::logException($e);
         }
@@ -514,7 +527,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
     /**
      * @param Mage_Sales_Model_Order $order
      */
-    private function makeInvoiceFromOrder($order)
+    protected function makeInvoiceFromOrder($order)
     {
         try {
             if ($order->canInvoice()) {
@@ -571,8 +584,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
             $status = self::TRANSACTION_CONFIRMED;
         }
 
-        $this->recurringResponse($clientHash, $status);
-
+        return $this->recurringResponse($clientHash, $status);
     }
 
     protected function deleteCardData($data)
@@ -581,11 +593,13 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         Mage::getModel('bluepayment/bluecards')
             ->getCollection()
-            ->addFieldToFilter('client_hash', Mage::getModel('core/encryption')
-            ->encrypt($clientHash))
+            ->addFieldToFilter(
+                'client_hash', Mage::getModel('core/encryption')
+                ->encrypt($clientHash)
+            )
             ->delete();
 
-        $this->recurringResponse($clientHash, self::TRANSACTION_CONFIRMED);
+        return $this->recurringResponse($clientHash, self::TRANSACTION_CONFIRMED);
     }
 
     protected function recurringResponse($clientHash, $status)
@@ -621,7 +635,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
 
         $dom->appendChild($confirmationList);
 
-        echo $dom->saveXML();
+        return $dom->saveXML();
     }
 
     public static function getClientIp()

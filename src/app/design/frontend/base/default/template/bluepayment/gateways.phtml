@@ -1,6 +1,7 @@
 <div class="p_method_bluepayment" id="p_method_bluepayment_gateway">
     <?php
-        $gatewaysList = $this->getGatewaysList(Mage::getSingleton('checkout/session')->getQuote()->getQuoteCurrencyCode());
+        $currency = Mage::getSingleton('checkout/session')->getQuote()->getQuoteCurrencyCode();
+        $gatewaysList = $this->getGatewaysList($currency);
         $showLogoFlag = Mage::helper('bluepayment/gateways')->showGatewayLogo();
     ?>
 
@@ -24,11 +25,11 @@
                         <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
                             <?php if ($showLogoFlag): ?>
                                 <?php if ($gateway->getData('use_own_logo')): ?>
-
                                     <?php
                                     $logoPath = $gateway->getData('gateway_logo_path');
                                     if ($logoPath && $logoPath != ''):
-                                        $ownLogoUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . $logoPath;
+                                        $ownLogoUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
+                                            . $logoPath;
                                         ?>
                                         <img src="<?php echo $ownLogoUrl; ?>"
                                              alt="<?php echo $gatewayName; ?>" style="height: 40px; vertical-align:middle;">

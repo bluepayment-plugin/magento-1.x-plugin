@@ -25,4 +25,4 @@ SQLTEXT;
 $installer->run($sql);
 
 $installer->endSetup();
-	 
+     
