@@ -246,9 +246,13 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             )
         );
 
+        $autoPaymentsGatewayId = self::getAutoPaymentsGatewayId();
+
         $gateways = array();
         foreach ($q as $gateway) {
-            $gateways[] = $gateway;
+            if ($gateway['gateway_id'] != $autoPaymentsGatewayId) {
+                $gateways[] = $gateway;
+            }
         }
 
         $this->sortGateways($gateways);
@@ -331,7 +335,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return false;
     }
 
-    public function getOneClickGatewayId()
+    public static function getAutoPaymentsGatewayId()
     {
         return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
     }

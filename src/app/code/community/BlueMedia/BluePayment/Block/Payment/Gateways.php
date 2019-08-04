@@ -24,9 +24,13 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
                 )
             );
 
-             $gatewayList = array();
+            $autoPaymentsGatewayId = BlueMedia_BluePayment_Helper_Gateways::getAutoPaymentsGatewayId();
+
+            $gatewayList = array();
             foreach ($q as $gateway) {
-                $gatewayList[] = $gateway;
+                if ($gateway['gateway_id'] != $autoPaymentsGatewayId) {
+                    $gatewayList[] = $gateway;
+                }
             }
 
             BlueMedia_BluePayment_Helper_Gateways::sortGateways($gatewayList);

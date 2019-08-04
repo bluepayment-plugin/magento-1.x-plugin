@@ -11,44 +11,42 @@
             <?php $gatewayId = $gateway->getData('gateway_id'); ?>
             <?php $gatewayName = $gateway->getName(); ?>
 
-            <?php if ($gatewayId != Mage::getStoreConfig("payment/bluepayment/autopay_gateway")): ?>
-                <li class="bluepayment-option">
-                    <div class="bluepayment-input">
-                        <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>"
-                               type="radio"
-                               value="<?php echo $gatewayId; ?>"
-                               name="payment_method_bluepayment_gateway"
-                               title="<?php echo $gatewayName; ?>"
-                               required
-                               class="validate-one-required-by-name"
-                        />
-                        <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
-                            <?php if ($showLogoFlag): ?>
-                                <?php if ($gateway->getData('use_own_logo')): ?>
-                                    <?php
-                                    $logoPath = $gateway->getData('gateway_logo_path');
-                                    if ($logoPath && $logoPath != ''):
-                                        $ownLogoUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
-                                            . $logoPath;
-                                        ?>
-                                        <img src="<?php echo $ownLogoUrl; ?>"
-                                             alt="<?php echo $gatewayName; ?>" style="height: 40px; vertical-align:middle;">
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <img src="<?php echo $gateway->getData('gateway_logo_url'); ?>"
+            <li class="bluepayment-option">
+                <div class="bluepayment-input">
+                    <input id="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>"
+                           type="radio"
+                           value="<?php echo $gatewayId; ?>"
+                           name="payment_method_bluepayment_gateway"
+                           title="<?php echo $gatewayName; ?>"
+                           required
+                           class="validate-one-required-by-name"
+                    />
+                    <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
+                        <?php if ($showLogoFlag): ?>
+                            <?php if ($gateway->getData('use_own_logo')): ?>
+                                <?php
+                                $logoPath = $gateway->getData('gateway_logo_path');
+                                if ($logoPath && $logoPath != ''):
+                                    $ownLogoUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
+                                        . $logoPath;
+                                    ?>
+                                    <img src="<?php echo $ownLogoUrl; ?>"
                                          alt="<?php echo $gatewayName; ?>" style="height: 40px; vertical-align:middle;">
-
                                 <?php endif; ?>
-                            <?php endif; ?>
-                            <span style="line-height: 40px;">
-                                <?php echo $gatewayName; ?>
-                            </span>
-                        </label>
+                            <?php else: ?>
+                                <img src="<?php echo $gateway->getData('gateway_logo_url'); ?>"
+                                     alt="<?php echo $gatewayName; ?>" style="height: 40px; vertical-align:middle;">
 
-                        <span> <?php $gateway->getData('gateway_description'); ?></span>
-                    </div>
-                </li>
-            <?php endif; ?>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <span style="line-height: 40px;">
+                            <?php echo $gatewayName; ?>
+                        </span>
+                    </label>
+
+                    <span> <?php $gateway->getData('gateway_description'); ?></span>
+                </div>
+            </li>
         <?php endforeach; ?>
     </ul>
 </div>
