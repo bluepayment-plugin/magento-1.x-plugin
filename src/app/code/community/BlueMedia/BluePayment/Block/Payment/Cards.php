@@ -13,6 +13,7 @@ class BlueMedia_BluePayment_Block_Payment_Cards extends Mage_Core_Block_Template
                     ->addFieldToFilter('customer_id', $customerData->getId());
             }
         }
+
         return $this->_cardsList;
     }
 }

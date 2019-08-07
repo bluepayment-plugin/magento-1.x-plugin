@@ -2,7 +2,6 @@
 
 class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Front_Action
 {
-
     const MESSAGE_ID_STRING_LENGTH = 32;
 
     public function preDispatch()
@@ -19,28 +18,29 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
      */
     public function viewAction()
     {
-        $card_index = $this->getRequest()->getParam('card_index');
-        if ($card_index) {
+        $cardIndex = $this->getRequest()->getParam('card_index');
+        if ($cardIndex) {
             if (Mage::getSingleton('customer/session')->isLoggedIn()) {
                 try {
                     $customerData = Mage::getSingleton('customer/session')->getCustomer();
                     $cards = Mage::getModel('bluepayment/bluecards')->getCollection()
                         ->addFieldToFilter('customer_id', $customerData->getId())
-                        ->addFieldToFilter('card_index', $card_index);
+                        ->addFieldToFilter('card_index', $cardIndex);
                     foreach ($cards as $card) {
                         $this->deleteCard($card);
                     }
                 } catch (Exception $e){
-                    var_dump($e);
+                    Mage::log($e->getMessage());
                 }
             }
         }
+
         $this->loadLayout();
         $this->getLayout()->getBlock('head')->setTitle($this->__('Saved Credit Cards'));
         $this->renderLayout();
     }
 
-    private function deleteCard($card)
+    protected function deleteCard($card)
     {
         $clientHash = Mage::getModel('core/encryption')->decrypt($card->getData('client_hash'));
         $serviceId = Mage::getStoreConfig("payment/bluepayment_pln/service_id");
@@ -54,7 +54,8 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
         );
 
         $data['Hash'] = Mage::helper('bluepayment')->generateAndReturnHash(
-            array($serviceId, $messageId, $clientHash, $hashKey));
+            array($serviceId, $messageId, $clientHash, $hashKey)
+        );
 
         $fields = (is_array($data)) ? http_build_query($data) : $data;
         try {
@@ -76,12 +77,13 @@ class BlueMedia_BluePayment_CustomerController extends Mage_Core_Controller_Fron
 
     }
 
-    private function getDeleteCardUrl()
+    protected function getDeleteCardUrl()
     {
         $mode = Mage::getStoreConfig('payment/bluepayment/test_mode');
         if ($mode) {
             return Mage::getStoreConfig('payment/bluepayment/test_address_delete_card_url');
         }
+
         return Mage::getStoreConfig('payment/bluepayment/prod_address_delete_card_url');
     }
 }    

@@ -9,7 +9,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
     public $currencies = array('PLN', 'GBP', 'EUR', 'USD', 'CZK');
 
-    const DEFAULT_SORT_ORDER = [
+    const DEFAULT_SORT_ORDER = array(
         '', // Avoid pushing first element to the end
         509, // BLIK
         1503, // Kartowa płatność automatyczna
@@ -49,12 +49,12 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         35, // Spółdzielcza Grupa Bankowa
         9, // Mam konto w innym banku
         1506, // Alior Raty
-    ];
+    );
 
     public function syncGateways()
     {
         foreach ($this->currencies as $currency) {
-            $result = [];
+            $result = array();
 
             $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
             $hashKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
@@ -83,13 +83,14 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                             break;
                         }
                     }
+
                     $tryCount++;
                 }
             }
         }
     }
 
-    private function loadGatewaysFromAPI($hashMethod, $serviceId, $messageId, $hashKey, $gatewayListAPIUrl)
+    protected function loadGatewaysFromAPI($hashMethod, $serviceId, $messageId, $hashKey, $gatewayListAPIUrl)
     {
         $hash = hash($hashMethod, $serviceId . '|' . $messageId . '|' . $hashKey);
         $data = array(
@@ -156,12 +157,17 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             if (is_array($gatewayList['gateway'])) {
                 $gatewayXMLObjects = $gatewayList['gateway'];
             } else {
-                $gatewayXMLObjects = [$gatewayList['gateway']];
+                $gatewayXMLObjects = array($gatewayList['gateway']);
             }
 
             foreach ($gatewayXMLObjects as $gatewayXMLObject) {
                 $gateway = (array)$gatewayXMLObject;
-                if (isset($gateway['gatewayID']) && isset($gateway['gatewayName']) && isset($gateway['bankName']) && isset($gateway['iconURL']) && isset($gateway['statusDate'])) {
+                if (isset($gateway['gatewayID'])
+                    && isset($gateway['gatewayName'])
+                    && isset($gateway['bankName'])
+                    && isset($gateway['iconURL'])
+                    && isset($gateway['statusDate'])
+                ) {
                     if (isset($existingGateways[$currency][$gateway['gatewayID']])) {
                         $gatewayModel = Mage::getModel('bluepayment/bluegateways')->load(
                             $existingGateways[$currency][$gateway['gatewayID']]['entity_id']
@@ -220,6 +226,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                 'status_date' => $blueGateways->getData('status_date')
             );
         }
+
         return $existingGateways;
     }
 
@@ -239,9 +246,13 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             )
         );
 
-        $gateways = [];
+        $autoPaymentsGatewayId = self::getAutoPaymentsGatewayId();
+
+        $gateways = array();
         foreach ($q as $gateway) {
-            $gateways[] = $gateway;
+            if ($gateway['gateway_id'] != $autoPaymentsGatewayId) {
+                $gateways[] = $gateway;
+            }
         }
 
         $this->sortGateways($gateways);
@@ -261,7 +272,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return $randstring;
     }
 
-    private function getGatewayListUrl()
+    protected function getGatewayListUrl()
     {
         $testMode = Mage::getStoreConfig('payment/bluepayment/test_mode');
 
@@ -299,6 +310,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         if ($cardIndex) {
             return $cardIndex;
         }
+
         return false;
     }
 
@@ -313,8 +325,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
     public function showAutoPayments()
     {
-        if (
-            Mage::getSingleton('customer/session')->isLoggedIn()
+        if (Mage::getSingleton('customer/session')->isLoggedIn()
             && Mage::getStoreConfig('payment/bluepayment/auto_payments') == 1
             && Mage::app()->getStore()->getCurrentCurrencyCode() == 'PLN'
         ) {
@@ -324,13 +335,15 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return false;
     }
 
-    public function getOneClickGatewayId()
+    public static function getAutoPaymentsGatewayId()
     {
         return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
     }
 
-    public static function sortGateways(&$array) {
-        usort($array, function ($a, $b) {
+    public static function sortGateways(&$array) 
+    {
+        usort(
+            $array, function ($a, $b) {
             $aPos = (int)$a->getData('gateway_sort_order');
             $bPos = (int)$b->getData('gateway_sort_order');
 
@@ -344,7 +357,8 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             }
 
             return $aPos >= $bPos;
-        });
+            }
+        );
 
         return $array;
     }
@@ -377,6 +391,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
                             $io = new Varien_Io_File();
                             $io->rm($filePath);
                         }
+
                         $uploader = new Varien_File_Uploader($fieldName);
                         $uploader->setAllowedExtensions(array('jpg', 'png', 'gif'));
                         $uploader->setAllowRenameFiles(false);
@@ -393,8 +408,10 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             if ($e->getCode() !== 666) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
             }
+
             return false;
         }
+
         return true;
     }
 

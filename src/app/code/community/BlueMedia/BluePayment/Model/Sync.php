@@ -6,9 +6,11 @@
  * and open the template in the editor.
  */
 
-class BlueMedia_BluePayment_Model_Sync {
+class BlueMedia_BluePayment_Model_Sync
+{
 
-    public function syncGateways() {
+    public function syncGateways() 
+    {
         Mage::helper('bluepayment/gateways')->syncGateways();
         return;
     }

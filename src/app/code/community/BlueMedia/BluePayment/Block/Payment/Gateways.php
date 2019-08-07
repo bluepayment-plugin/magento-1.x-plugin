@@ -18,15 +18,19 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
             // Order by gateway_sort_order
             // but 0 goes to the end of the list
             $q->getSelect()->order(
-                 new Zend_Db_Expr(
-                     "CASE WHEN `gateway_sort_order` = 0 THEN 999999
+                new Zend_Db_Expr(
+                    "CASE WHEN `gateway_sort_order` = 0 THEN 999999
                     ELSE `gateway_sort_order` END"
-                 )
-             );
+                )
+            );
 
-             $gatewayList = [];
+            $autoPaymentsGatewayId = BlueMedia_BluePayment_Helper_Gateways::getAutoPaymentsGatewayId();
+
+            $gatewayList = array();
             foreach ($q as $gateway) {
-                $gatewayList[] = $gateway;
+                if ($gateway['gateway_id'] != $autoPaymentsGatewayId) {
+                    $gatewayList[] = $gateway;
+                }
             }
 
             BlueMedia_BluePayment_Helper_Gateways::sortGateways($gatewayList);
@@ -45,6 +49,7 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
                     ->addFieldToFilter('customer_id', $customerData->getId());
             }
         }
+
         return $this->_cardsList;
     }
 

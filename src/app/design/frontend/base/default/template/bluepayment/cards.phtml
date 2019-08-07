@@ -11,9 +11,10 @@
                 <?php echo $this->__('Card'); ?> <?php echo $card->getData('issuer'); ?> **** ****
                 **** <?php echo $card->getData('mask'); ?>
             </label><br/>
-            <?php endforeach; ?>
+    <?php endforeach; ?>
             <label>
-                <input type="radio" value="-1" name="payment_method_bluepayment_card_index"/> <?php echo $this->__('Add new card'); ?>
+                <input type="radio" value="-1" name="payment_method_bluepayment_card_index"/>
+                <?php echo $this->__('Add new card'); ?>
             </label>
         </div>
     </li>

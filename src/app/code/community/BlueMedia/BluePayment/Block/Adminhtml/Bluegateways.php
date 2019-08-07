@@ -12,11 +12,13 @@ class BlueMedia_BluePayment_Block_Adminhtml_Bluegateways extends Mage_Adminhtml_
         
         $this->_removeButton('add');
         
-        $this->_addButton('sync', array(
+        $this->_addButton(
+            'sync', array(
             'label' => 'Sync Gateways',
             'onclick' => 'setLocation(\'' . $this->getSyncGatewaysUrl() . '\')',
             'class' => 'sync',
-        ));
+            )
+        );
     }
 
     public function getSyncGatewaysUrl()
