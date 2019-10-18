@@ -17,4 +17,9 @@ class BlueMedia_BluePayment_Model_Bluegateways extends Mage_Core_Model_Abstract
 
         return $this->getData('gateway_name');
     }
+
+    public function isGPay()
+    {
+        return $this->getData('gateway_id') == BlueMedia_BluePayment_Helper_Gateways::getGPayGatewayId();
+    }
 }

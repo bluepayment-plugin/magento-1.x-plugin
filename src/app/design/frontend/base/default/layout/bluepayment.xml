@@ -53,6 +53,11 @@
             <action method="addJs" ifconfig="payment/bluepayment/addjquery">
                 <script>bluepayment/jquery.min.noConflict.js</script>
             </action>
+            <block type="core/text" name="gpay">
+                <action method="setText">
+                    <text><![CDATA[<script type="text/javascript" src="https://pay.google.com/gp/p/js/pay.js"></script>]]> </text>
+                </action>
+            </block>
         </reference>
     </checkout_onepage_index>
 
