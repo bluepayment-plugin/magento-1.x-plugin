@@ -9,8 +9,10 @@ class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
         $hashMethod = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
         $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
         $hashKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
-        $domain = 'magento2.bm.devmouse.pl';
         $merchantInfoUrl = $this->getMerchantInfoUrl();
+
+        $url = parse_url(Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB));
+        $domain = $url['host'];
 
         return $this->loadMerchantInfoFromAPI(
             $hashMethod,
@@ -41,8 +43,9 @@ class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['BmHeader: pay-bm']);
             $curlResponse = curl_exec($curl);
+            $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-            Mage::log('[Webapi] Response - '.$curlResponse, null, 'bluemedia.log', true);
+            Mage::log('[Webapi] Response - ['.$http_status.'] '.$curlResponse, null, 'bluemedia.log', true);
 
             curl_close($curl);
 
