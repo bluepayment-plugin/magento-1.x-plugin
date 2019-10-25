@@ -28,6 +28,8 @@ class BlueMedia_BluePayment_OnepageController extends Mage_Checkout_OnepageContr
             $autopayGatewayId = Mage::getStoreConfig("payment/bluepayment/autopay_gateway");
             $gPayGatewayId = Mage::getStoreConfig("payment/bluepayment/gpay_gateway");
 
+            Mage::helper('bluepayment/gateways')->setQuoteGatewayId($gatewayId);
+
             if ($gatewayId == $gPayGatewayId) {
                 $token = $this->getRequest()->getPost('gpay_token');
                 Mage::helper('bluepayment/gateways')->setQuoteGPayToken($token);
@@ -36,8 +38,6 @@ class BlueMedia_BluePayment_OnepageController extends Mage_Checkout_OnepageContr
                     if ($cardIndex !== null) {
                         Mage::helper('bluepayment/gateways')->setQuoteGatewayId($autopayGatewayId);
                         Mage::helper('bluepayment/gateways')->setQuoteCardIndex($cardIndex);
-                    } else {
-                        Mage::helper('bluepayment/gateways')->setQuoteGatewayId($gatewayId);
                     }
                 } else {
                     if (Mage::helper('bluepayment/gateways')->isCheckoutGatewaysActive()) {
