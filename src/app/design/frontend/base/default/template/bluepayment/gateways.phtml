@@ -53,6 +53,7 @@
 <script>
     //<![CDATA[
     var $gateways = jQuery('#p_method_bluepayment_gateway');
+
     jQuery(document).ready(function () {
         $interval = setInterval(function () {
             jQuery('#p_method_bluepayment_gateway').find('input').each(function () {
@@ -74,6 +75,11 @@
                     hideGateways();
                 }
             });
+        }
+
+        if (jQuery('[name="payment[method]"].gpay').length > 0) {
+            var gpay = new GPay();
+            gpay.init();
         }
     });
 
@@ -102,6 +108,121 @@
         if ($gateways.length) {
             $gateways.hide();
         }
+    }
+
+    function GPay() {
+        this.gPayClient = null;
+        this.gPayMerchantInfo = null;
+        this.gPayAcceptorId = null;
+        this.testMode = null;
+        this.merchantInfoUrl = "<?php echo $this->getUrl('checkout/onepage/gpay/'); ?>";
+        this.total = null;
+        this.currency = null;
+
+        this.init = function() {
+            this.wrapPayment();
+            this.initializeClient();
+        };
+
+        this.wrapPayment = function() {
+            var self = this;
+
+            Payment.prototype.save = Payment.prototype.save.wrap(function(save) {
+                var validator = new Validation(this.form);
+
+                if (this.validate() && validator.validate()) {
+                    if (jQuery('#p_method_' + this.currentMethod).hasClass('gpay')) {
+                        self.gPayClient.loadPaymentData(self.getGPayTransactionData()).then(function (data) {
+                            var token = data.paymentMethodData.tokenizationData.token;
+
+                            jQuery('[name="gpay_token"]').val(token);
+                            save();
+                        })
+                        .catch(function (errorMessage) {
+                            console.error(errorMessage);
+                        });
+                    } else {
+                        save();
+                    }
+                }
+            });
+        };
+
+        this.initializeClient = function() {
+            var self = this;
+
+            jQuery.getJSON(this.merchantInfoUrl, function(data) {
+                self.testMode = data.testMode === "1";
+                self.gPayAcceptorId = data.acceptorId;
+                self.gPayMerchantInfo = data.merchantInfo;
+                self.total = data.total;
+                self.currency = data.currency;
+
+                self.gPayClient = new google.payments.api.PaymentsClient({
+                    environment: self.testMode ? 'TEST' : 'PRODUCTION'
+                });
+
+                self.gPayClient.isReadyToPay({
+                    apiVersion: 2,
+                    apiVersionMinor: 0,
+                    merchantInfo: self.gPayMerchantInfo,
+                    allowedPaymentMethods: [
+                        {
+                            type: "CARD",
+                            parameters: {
+                                allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+                                allowedCardNetworks: [/*"AMEX", "DISCOVER", "JCB", */"MASTERCARD", "VISA"]
+                            }
+                        }
+                    ]
+                })
+                    .then(function (response) {
+                        var transactionData = self.getGPayTransactionData();
+
+                        transactionData.transactionInfo.totalPriceStatus = 'NOT_CURRENTLY_KNOWN';
+
+                        if (response.result) {
+                            self.gPayClient.prefetchPaymentData(transactionData);
+                            self.gPayClient.createButton({onClick: function () {}});
+                        } else {
+                            console.error(response);
+                        }
+                    })
+                    .catch(function (errorMessage) {
+                        console.error(response);
+                    });
+            });
+        };
+
+        this.getGPayTransactionData = function() {
+            return {
+                apiVersion: 2,
+                apiVersionMinor: 0,
+                merchantInfo: this.gPayMerchantInfo,
+                allowedPaymentMethods: [
+                    {
+                        type: 'CARD',
+                        parameters: {
+                            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                            allowedCardNetworks: [/*"AMEX", "DISCOVER", "JCB", */"MASTERCARD", "VISA"]
+                        },
+                        tokenizationSpecification: {
+                            type: 'PAYMENT_GATEWAY',
+                            parameters: {
+                                'gateway': 'bluemedia',
+                                'gatewayMerchantId': this.gPayAcceptorId
+                            }
+                        }
+                    }
+                ],
+                shippingAddressRequired: false,
+                transactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPrice: parseFloat(this.total).toFixed(2).toString(),
+                    currencyCode: this.currency.toString()
+                },
+            };
+        };
     }
 
     //]]>

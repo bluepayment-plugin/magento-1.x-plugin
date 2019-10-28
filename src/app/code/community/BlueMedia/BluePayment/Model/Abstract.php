@@ -93,7 +93,7 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
     protected $_orderParams = array(
         'ServiceID', 'OrderID', 'Amount', 'GatewayID', 'Currency',
         'CustomerEmail', 'Language', 'CustomerIP', 'RecurringAcceptanceState',
-        'RecurringAction', 'ClientHash', 'ScreenType'
+        'RecurringAction', 'ClientHash', 'ScreenType', 'PaymentToken'
     );
 
     /**
@@ -107,16 +107,30 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
     }
 
     /**
+     * @return bool
+     */
+    public function isTestMode()
+    {
+        return (bool)$this->getConfigData('test_mode');
+    }
+
+    /**
      * Zwraca adres bramki
      *
      * @return string
      */
     public function getUrlGateway()
     {
-        // Aktywny tryb usługi
-        $mode = $this->getConfigData('test_mode');
+        if ($this->isTestMode()) {
+            return Mage::getStoreConfig("payment/bluepayment/test_address_url");
+        }
 
-        if ($mode) {
+        return Mage::getStoreConfig("payment/bluepayment/prod_address_url");
+    }
+
+    public function getUrlMerchantInfo()
+    {
+        if ($this->isTestMode()) {
             return Mage::getStoreConfig("payment/bluepayment/test_address_url");
         }
 
@@ -195,6 +209,12 @@ class BlueMedia_BluePayment_Model_Abstract extends Mage_Payment_Model_Method_Abs
                 )
             ) {
                 $params['ScreenType'] = 'IFRAME';
+            }
+
+            if ($gatewayId == Mage::getStoreConfig("payment/bluepayment/gpay_gateway")) {
+                $token = base64_encode(Mage::helper('bluepayment/gateways')->getQuoteGPayToken());
+
+                $params['PaymentToken'] = $token;
             }
         }
 

@@ -2,7 +2,6 @@
 
 class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 {
-
     const FAILED_CONNECTION_RETRY_COUNT = 5;
     const MESSAGE_ID_STRING_LENGTH = 32;
     const UPLOAD_PATH = '/BlueMedia/';
@@ -234,8 +233,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     {
         $q = Mage::getModel('bluepayment/bluegateways')->getCollection()
             ->addFieldToFilter('gateway_status', 1)
-            ->addFieldToFilter('gateway_currency', $currency)
-            ->addFieldToFilter('is_separated_method', 1);
+            ->addFieldToFilter('gateway_currency', $currency);
 
         // Order by gateway_sort_order
         // but 0 goes to the end of the list
@@ -246,11 +244,19 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             )
         );
 
-        $autoPaymentsGatewayId = self::getAutoPaymentsGatewayId();
+        $alwaysSeparatedMethods = [
+            self::getGPayGatewayId()
+        ];
+        $dontShowMethods = [
+            self::getAutoPaymentsGatewayId(),
+        ];
 
         $gateways = array();
         foreach ($q as $gateway) {
-            if ($gateway['gateway_id'] != $autoPaymentsGatewayId) {
+            if (
+                ($gateway['is_separated_method'] == 1 && !in_array($gateway['gateway_id'], $dontShowMethods))
+                || in_array($gateway['gateway_id'], $alwaysSeparatedMethods)
+            ) {
                 $gateways[] = $gateway;
             }
         }
@@ -314,6 +320,21 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function setQuoteGPayToken($token)
+    {
+        Mage::getSingleton('checkout/session')->setQuoteGPayToken($token);
+    }
+
+    public function getQuoteGPayToken()
+    {
+        $token = Mage::getSingleton('checkout/session')->getQuoteGPayToken();
+        if ($token) {
+            return $token;
+        }
+
+        return false;
+    }
+
     public function showGatewayLogo()
     {
         if (Mage::getStoreConfig('payment/bluepayment/show_gateway_logo') == 1) {
@@ -338,6 +359,11 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
     public static function getAutoPaymentsGatewayId()
     {
         return Mage::getStoreConfig('payment/bluepayment/autopay_gateway');
+    }
+
+    public static function getGPayGatewayId()
+    {
+        return Mage::getStoreConfig('payment/bluepayment/gpay_gateway');
     }
 
     public static function sortGateways(&$array) 

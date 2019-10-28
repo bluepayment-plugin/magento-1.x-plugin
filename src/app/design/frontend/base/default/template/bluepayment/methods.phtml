@@ -108,13 +108,17 @@
                            id="gateway_separated_<?php echo $gatewayId ?>"
                            style="display: none;">
 
+                    <?php if ($gateway->isGPay()): ?>
+                        <input type="hidden" name="gpay_token">
+                    <?php endif; ?>
+
                     <input
-                            id="p_method_separated_<?php echo $code.'_'.$gateway->getData('entity_id') ?>"
+                            id="p_method_<?php echo $code ?>_separated_<?php echo $gateway->getData('entity_id') ?>"
                             value="<?php echo $code ?>"
                             name="payment[method]"
                             title="<?php echo $this->htmlEscape($method->getTitle()) ?>"
                             type="radio"
-                            class="radio"
+                            class="radio <?php if ($gateway->isGPay()) echo 'gpay'; ?>"
                             onclick="(function(){
                                     jQuery('#gateway_separated_<?php echo $gatewayId ?>').prop('checked', true);
                                     payment.switchMethod('<?php echo $code.'_separated_'.$gateway->getData('entity_id') ?>');
@@ -122,7 +126,7 @@
                                     jQuery('#payment_form_bluepayment_2 input[type=radio]').prop('checked', false);
                                     })()" />
 
-                    <label for="p_method_separated_<?php echo $code.'_'.$gateway->getData('entity_id') ?>">
+                    <label for="p_method_<?php echo $code ?>_separated_<?php echo $gateway->getData('entity_id') ?>">
                         <?php echo $gateway->getName() ?>
                     </label>
                 </dt>
