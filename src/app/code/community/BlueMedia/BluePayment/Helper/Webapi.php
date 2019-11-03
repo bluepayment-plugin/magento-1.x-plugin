@@ -2,11 +2,14 @@
 
 class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
 {
+    const MESSAGE_ID_STRING_LENGTH = 32;
+
+    const TYPE_XML = 'xml';
+    const TYPE_JSON = 'json';
+
     public function getMerchantInfo()
     {
         $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
-
-        $hashMethod = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
         $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
         $hashKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
         $merchantInfoUrl = $this->getMerchantInfoUrl();
@@ -14,23 +17,35 @@ class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
         $url = parse_url(Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB));
         $domain = $url['host'];
 
-        return $this->loadMerchantInfoFromAPI(
-            $hashMethod,
-            $serviceId,
-            $domain,
+        return $this->loadFromAPI(
+            ['ServiceID' => $serviceId, 'MerchantDomain' => $domain],
             $hashKey,
             $merchantInfoUrl
         );
     }
 
-    protected function loadMerchantInfoFromAPI($hashMethod, $serviceId, $merchantDomain, $hashKey, $merchantInfoUrl)
+    public function regulationsGet()
     {
-        $hash = hash($hashMethod, $serviceId . '|' . $merchantDomain . '|' . $hashKey);
-        $data = array(
-            'ServiceID' => $serviceId,
-            'MerchantDomain' => $merchantDomain,
-            'Hash' => $hash
+        $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
+        $serviceId = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/service_id");
+        $hashKey = Mage::getStoreConfig("payment/bluepayment_".strtolower($currency)."/shared_key");
+        $url = $this->getRegulationsURL();
+
+        $messageId = Mage::helper('bluepayment/gateways')->randomString(self::MESSAGE_ID_STRING_LENGTH);
+
+        return $this->loadFromAPI(
+            ['ServiceID' => $serviceId, 'MessageID' => $messageId],
+            $hashKey,
+            $url,
+            self::TYPE_XML
         );
+    }
+
+    protected function loadFromAPI($data, $hashKey, $merchantInfoUrl, $type = self::TYPE_JSON)
+    {
+        $hashMethod = Mage::getStoreConfig("payment/bluepayment/hash_algorithm");
+
+        $data['Hash'] = hash($hashMethod, implode('|', $data) . '|' . $hashKey);
         $fields = http_build_query($data);
 
         try {
@@ -52,7 +67,12 @@ class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
             if ($curlResponse == 'ERROR' || $curlResponse == '') {
                 return false;
             } else {
-                return json_decode($curlResponse);
+                if ($type == self::TYPE_JSON) {
+                    return json_decode($curlResponse);
+                }
+
+                $response = simplexml_load_string($curlResponse);
+                return $response;
             }
         } catch (Mage_Core_Exception $e) {
             Mage::log($e->getMessage());
@@ -78,6 +98,18 @@ class BlueMedia_BluePayment_Helper_Webapi extends Mage_Core_Helper_Abstract
         }
 
         return Mage::getStoreConfig("payment/bluepayment/prod_address_gpay_merchant_info_url");
+    }
+
+    /**
+     * @return string
+     */
+    public function getRegulationsURL()
+    {
+        if ($this->isTestMode()) {
+            return Mage::getStoreConfig("payment/bluepayment/test_address_regulations_url");
+        }
+
+        return Mage::getStoreConfig("payment/bluepayment/prod_address_regulations_url");
     }
 
 }
