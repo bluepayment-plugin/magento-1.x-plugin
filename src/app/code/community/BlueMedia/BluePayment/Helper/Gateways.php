@@ -231,6 +231,8 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
     public function getSeparatedGatewaysList($currency = 'PLN')
     {
+        $regulations = $this->getParsedRegulations();
+
         $q = Mage::getModel('bluepayment/bluegateways')->getCollection()
             ->addFieldToFilter('gateway_status', 1)
             ->addFieldToFilter('gateway_currency', $currency);
@@ -253,6 +255,14 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
         $gateways = array();
         foreach ($q as $gateway) {
+            $id = $gateway['gateway_id'];
+            $id = 1800;
+            // @ToDo change
+
+            if (isset($regulations[$id])) {
+                $gateway->setData('regulation', $regulations[$id]['text']);
+            }
+
             if (
                 ($gateway['is_separated_method'] == 1 && !in_array($gateway['gateway_id'], $dontShowMethods))
                 || in_array($gateway['gateway_id'], $alwaysSeparatedMethods)
@@ -441,4 +451,27 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return true;
     }
 
+    private function getParsedRegulations()
+    {
+        $list = Mage::helper('bluepayment/webapi')->regulationsGet();
+
+        if (!is_object($list)) {
+            return [];
+        }
+
+        $regulations = [];
+        foreach ($list->regulations->regulation as $regulation)
+        {
+            $regulation = (array)$regulation;
+
+            $regulations[$regulation['gatewayID']] = [
+                'id' => $regulation['regulationID'],
+                'type' => $regulation['type'],
+                'text' => $regulation['inputLabel'],
+                'language' => $regulation['language'],
+            ];
+        }
+
+        return $regulations;
+    }
 }

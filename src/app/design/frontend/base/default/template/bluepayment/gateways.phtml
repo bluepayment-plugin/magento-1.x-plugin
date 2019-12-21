@@ -6,10 +6,16 @@
     ?>
 
     <h4 style="padding-top: 20px; padding-left: 30px;"><?php echo $this->__('Select payment method:'); /* Wybierz sposób płatności: */?></h4>
+    <small style="padding-left: 30px; margin-bottom: 10px;display: block;">
+        Zlecenie płatnicze składane jest do Twojego banku za pośrednictwem Blue Media S.A. z siedzibą w Sopocie i
+        zostanie zrealizowane zgodnie z warunkami określonymi przez Twój bank. Po wyborze banku dokonasz autoryzacji płatności.
+    </small>
+
     <ul class="bluepayment-options-list" style="margin-left: 30px;">
         <?php foreach ($gatewaysList as $gateway): ?>
             <?php $gatewayId = $gateway->getData('gateway_id'); ?>
             <?php $gatewayName = $gateway->getName(); ?>
+            <?php $regulation = $gateway->getData('regulation'); ?>
 
             <li class="bluepayment-option">
                 <div class="bluepayment-input">
@@ -20,6 +26,7 @@
                            title="<?php echo $gatewayName; ?>"
                            required
                            class="validate-one-required-by-name"
+                           data-regulation="<?php echo htmlentities($regulation); ?>"
                     />
                     <label for="p_method_bluepayment_gateway_<?php echo $gatewayId; ?>">
                         <?php if ($showLogoFlag): ?>
@@ -44,7 +51,7 @@
                         </span>
                     </label>
 
-                    <span> <?php $gateway->getData('gateway_description'); ?></span>
+                    <span> <?php echo $gateway->getData('gateway_description'); ?></span>
                 </div>
             </li>
         <?php endforeach; ?>

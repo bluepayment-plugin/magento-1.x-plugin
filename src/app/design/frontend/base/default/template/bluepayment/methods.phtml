@@ -102,6 +102,8 @@
             <?php foreach(Mage::helper('bluepayment/gateways')->getSeparatedGatewaysList($currency) as $gateway): ?>
                 <dt>
                     <?php $gatewayId = $gateway->getData('gateway_id'); ?>
+                    <?php $regulation = $gateway->getData('regulation'); ?>
+
                     <input type="radio"
                            value="<?php echo $gatewayId; ?>"
                            name="payment_method_bluepayment_gateway"
@@ -124,7 +126,8 @@
                                     payment.switchMethod('<?php echo $code.'_separated_'.$gateway->getData('entity_id') ?>');
                                     jQuery('#payment_form_bluepayment input[type=radio]').prop('checked', false);
                                     jQuery('#payment_form_bluepayment_2 input[type=radio]').prop('checked', false);
-                                    })()" />
+                                    })()"
+                            data-regulation="<?php echo htmlentities($regulation); ?>" />
 
                     <label for="p_method_<?php echo $code ?>_separated_<?php echo $gateway->getData('entity_id') ?>">
                         <?php echo $gateway->getName() ?>
@@ -134,4 +137,38 @@
             <?php endif; ?>
         <?php endforeach; ?>
     </dl>
+
+    <div class="agreement" style="font-size: 11px;"></div>
 <?php echo $this->getChildChildHtml('additional'); ?>
+
+<script>
+    //<![CDATA[
+    jQuery(document).ready(function () {
+        $regulationContainer = jQuery('.agreement');
+
+        jQuery('input[name="payment[method]"]').change(function() {
+            var regulation = jQuery(this).data('regulation');
+
+            if (regulation) {
+                $regulationContainer.html(regulation);
+                $regulationContainer.show();
+            } else {
+                $regulationContainer.html('');
+                $regulationContainer.hide();
+            }
+        });
+
+        jQuery('input[name="payment_method_bluepayment_gateway"]').change(function(event) {
+            var regulation = jQuery(this).data('regulation');
+
+            if (regulation) {
+                $regulationContainer.html(regulation);
+                $regulationContainer.show();
+            } else {
+                $regulationContainer.html('');
+                $regulationContainer.hide();
+            }
+        });
+    });
+    //]]>
+</script>
