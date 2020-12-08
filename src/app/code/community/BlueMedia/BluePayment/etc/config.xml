@@ -23,7 +23,7 @@
             </bluepayment>
             <bluepayment_mysql4>
                 <class>BlueMedia_BluePayment_Model_Mysql4</class>
-                <entities>		  
+                <entities>
                     <bluegateways>
                         <table>blue_gateways</table>
                     </bluegateways>
@@ -59,7 +59,7 @@
                 </connection>
             </bluepayment_read>
         </resources>
-        
+
         <events>
             <sales_order_place_after>
                 <observers>
@@ -71,7 +71,7 @@
                 </observers>
             </sales_order_place_after>
         </events>
-        
+
     </global>
     <admin>
         <routers>
@@ -194,6 +194,7 @@
                 <autopay_gateway>1503</autopay_gateway>
                 <card_gateway>1500</card_gateway>
                 <gpay_gateway>1512</gpay_gateway>
+                <credit_gateway>700</credit_gateway>
                 <addjquery>1</addjquery>
                 <makeinvoice>0</makeinvoice>
                 <iframe_payment>0</iframe_payment>

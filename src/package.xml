@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>BlueMedia_BluePayment</name>
-    <version>1.8.0</version>
+    <version>1.10.0</version>
     <stability>stable</stability>
     <license>GPL</license>
     <channel>community</channel>

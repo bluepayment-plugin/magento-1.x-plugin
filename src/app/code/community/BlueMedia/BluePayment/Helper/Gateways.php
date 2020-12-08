@@ -14,20 +14,33 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         1503, // Kartowa płatność automatyczna
         1500, // Płatność kartą
         1512, // Google Pay
+        1513, // Apple Pay
         1511, // Visa Checkout
+        700, // Smartney
         106, // Tylko na teście
         68, // Płać z ING
+        1808, // Płatność z ING
         3, // mTransfer
+        1800, // Płatność z mBank
         1063, // Płacę z IPKO
+        1803, // Płatność z PKOBP
         27, // Santander online
+        1806, // Płatność z Santander
         52, // Pekao24 PBL
+        1805, // Płatność z PekaoSA
         85, // Millennium Bank PBL
+        1807, // Płatność z Millenium
         95, // Płacę z Alior Bankiem
+        1802, // Płatność z Alior
         59, // CA przelew online
+        1809, // Płatność z Credit Agricole
         79, // Eurobank - płatność online
         1064, // Płacę z Inteligo
+        1810, // Płatność z Inteligo
         1035, // BNP Paribas - płacę z Pl@net
+        1804, // Płatność z BNP Paribas
         513, // Getin Bank
+        1801, // Płatność z Getin
         1010, // T-Mobile Usługi Bankowe
         90, // Płacę z Citi Handlowy
         76, // BNP Paribas-Płacę z żółty online
@@ -376,7 +389,12 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfig('payment/bluepayment/gpay_gateway');
     }
 
-    public static function sortGateways(&$array) 
+    public static function getCreditGatewayId()
+    {
+        return Mage::getStoreConfig('payment/bluepayment/credit_gateway');
+    }
+
+    public static function sortGateways(&$array)
     {
         usort(
             $array, function ($a, $b) {
