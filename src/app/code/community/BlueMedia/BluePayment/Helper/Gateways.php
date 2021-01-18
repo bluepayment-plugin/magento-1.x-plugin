@@ -266,11 +266,15 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             self::getAutoPaymentsGatewayId(),
         ];
 
+        // Add Smartney
+        $grandTotal = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
+        if ($grandTotal >= 200 && $grandTotal <= 1500) {
+            $alwaysSeparatedMethods[] = self::getCreditGatewayId();
+        }
+
         $gateways = array();
         foreach ($q as $gateway) {
             $id = $gateway['gateway_id'];
-            $id = 1800;
-            // @ToDo change
 
             if (isset($regulations[$id])) {
                 $gateway->setData('regulation', $regulations[$id]['text']);
@@ -411,7 +415,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
             }
 
             return $aPos >= $bPos;
-            }
+        }
         );
 
         return $array;
