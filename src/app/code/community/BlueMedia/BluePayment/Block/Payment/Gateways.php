@@ -28,14 +28,13 @@ class BlueMedia_BluePayment_Block_Payment_Gateways extends Mage_Core_Block_Templ
 
             $alwaysSeparatedMethods = [
                 BlueMedia_BluePayment_Helper_Gateways::getAutoPaymentsGatewayId(),
-                BlueMedia_BluePayment_Helper_Gateways::getGPayGatewayId()
+                BlueMedia_BluePayment_Helper_Gateways::getGPayGatewayId(),
+                BlueMedia_BluePayment_Helper_Gateways::getCreditGatewayId()
             ];
 
             $gatewayList = array();
             foreach ($q as $gateway) {
                 $id = $gateway['gateway_id'];
-                $id = 1800;
-                // @ToDo change
 
                 if (isset($regulations[$id])) {
                     $gateway->setData('regulation', $regulations[$id]['text']);
