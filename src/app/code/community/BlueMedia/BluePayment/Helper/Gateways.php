@@ -268,7 +268,7 @@ class BlueMedia_BluePayment_Helper_Gateways extends Mage_Core_Helper_Abstract
 
         // Add Smartney
         $grandTotal = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
-        if ($grandTotal >= 100 && $grandTotal <= 2000) {
+        if ($grandTotal >= 100 && $grandTotal <= 2500) {
             $alwaysSeparatedMethods[] = self::getCreditGatewayId();
         }
 
