@@ -95,7 +95,7 @@ Odświeżenie listy kanałów płatności
 2.	Następnie kliknij na wiersz kanału, który chcesz aktywować.
 3.	Zmień **Status kanału (Gateway Status]** na **Aktywny [Enabled]**.
 
-### Pozostałe opcje dostępne w zakładce kanału to:
+Pozostałe opcje dostępne w zakładce kanału to:
 -	Identyfikator kanału [Gateway ID]
 -	Waluta [Currency]
 -	Nazwa banku [Bank Name]
@@ -109,3 +109,101 @@ Odświeżenie listy kanałów płatności
 -	Traktuj jako osobną metodę płatności [Is separated method?] – powoduje wyświetlanie danego kanału jako osobnej metody płatności na stronie
 
 <img width="716" alt="Osobne metody płatności" src="https://user-images.githubusercontent.com/87177993/126782280-4848752d-5f39-4745-ba62-d7efcb09bb93.png">
+
+- Kolejność [Sort Order] – kolejność sortowania kanałów na liście, gdzie 1 oznacza pierwszą pozycję na liście, 2 drugą, (...), a 0 ostatnią
+- URL do logo [Gateway Logo URL] – adres do logo kanału
+- Użyj własnego logo [Use Own Logo] – umożliwia dodanie własnego logo do kanału (w formacie .jpg, .png, .gif)
+- Data ostatniej aktualizacji [Status Date] – data i godzina ostatniej aktualizacji danych dotyczących kanału
+
+### Płatność w iframe
+To funkcja, która umożliwia klientom dokonanie płatności kartą płatniczą bez wychodzenia ze sklepu i opuszczania procesu zakupowego. Implementacja takiej formy płatności ze względu na wymogi związane z bezpieczeństwem procesowania transakcji wymaga dwóch dodatkowych dokumentów: SAQ oraz audytu strony.
+
+![iframe](https://user-images.githubusercontent.com/87177993/126783743-9bd615e2-b71f-4af9-9bdf-b8a4fb6abf3a.png)
+
+#### Aktywacja
+
+1.	Żeby aktywować płatności iframe przejdź do strony konfiguracji modułu.
+2.	Wejdź do zakładki **Płatności Online BM [Online payment BM]** i zaznacz **Tak [Yes]** przy funkcji **Płatność w Iframe [Iframe payment]**.
+
+### Płatności automatyczne
+Funkcja Płatności jednym kliknięciem [One-Click Payment] to kolejny sposób na wygodne płatności z wykorzystaniem kart płatniczych. Pozwala na realizowanie szybkich płatności, bez konieczności każdorazowego podawania przez klienta wszystkich danych uwierzytelniających kartę. 
+
+Proces obsługi płatności polega na jednorazowej autoryzacji płatności kartą i przypisaniu danych karty do konkretnego klienta. Pierwsza transakcja zabezpieczona jest protokołem 3D-Secure, natomiast kolejne realizowane są na podstawie przesłanego przez partnera żądania obciążenia karty. Płatność automatyczna dostępna jest tylko dla zalogowanych klientów sklepu.
+
+<img width="943" alt="Płatności automatyczne" src="https://user-images.githubusercontent.com/87177993/126784934-a97a380c-4d8c-4f99-aac4-1780b3332af7.png">
+
+#### Aktywacja
+
+1.	Żeby aktywować płatności automatyczne przejdź do strony konfiguracji modułu.
+2.	Wejdź do zakładki **Płatności Online BM [Online payment BM]** i zaznacz **Tak [Yes]** przy funkcji **Płatności automatyczne [Automatic payment]**.
+
+### Zarządzanie kartami
+
+Moduł płatności BluePayment umożliwia zapamiętanie karty i powiązanie jej z kontem klienta przy pierwszej poprawnie zrealizowanej płatności z wykorzystaniem płatności automatycznej oraz zaakceptowaniu regulaminu.
+
+Klient sklepu ma zawsze możliwość usunięcia zapamiętanej karty bezpośrednio z poziomu swojego konta. Żeby to zrobić musi:
+1.	zalogować się do sklepu internetowego,
+2.	przejść do **ACCOUNT ➝ Moje konto [My account]**,
+3.	wybrać **Zapisane karty [Saved cards]** z menu po lewej stronie (wyświetli się wówczas lista zapisanych kart),
+
+![Saved cards](https://user-images.githubusercontent.com/87177993/126788306-629b42be-09ec-404e-bec8-eadf94dcca07.png)
+
+4.	wybrać kartę, którą chce usunąć i kliknąć **Usuń [Delete]**.
+
+### Aktualizacja
+
+💡 Podczas aktualizacji modułu skorzystaj z tej samej metody, którą wybrałeś podczas instalacji. Jeśli wcześniej użyłeś pliku .tzg, teraz zrób to samo, a jeśli wybrałeś instalację ręczną, aktualizację również przeprowadź ręcznie.
+
+#### Aktualizacja z użyciem pliku .tgz
+
+Żeby zaktualizować moduł:
+1.	usuń poprzednią wersję modułu postępując zgodnie z instrukcją z sekcji Odinstalowanie -> W przypadku instalacji za pomocą pliku .tgz,
+2.	zainstaluj nową wersję modułu kierując się instrukcją z sekcji Instalacja -> Instalacja z użyciem pliku .tg. 
+
+#### Ręczna aktualizacja
+
+Żeby zaktualizować moduł postępuj zgodnie z instrukcją z sekcji Instalacja -> Ręczna instalacja;
+
+## Odinstalowanie
+
+💡 Podczas dezaktywacji modułu skorzystaj z tej samej metody, którą wybrałeś podczas instalacji. Jeśli wcześniej użyłeś pliku .tzg, teraz zrób to samo, a jeśli wybrałeś instalację ręczną, aktualizację również przeprowadź ręcznie.
+
+### W przypadku instalacji za pomocą pliku .tgz
+
+Żeby odinstalować moduł BluePayment:
+1.	zaloguj się do panelu administracyjnego Magento i wybierz z menu głównego **System ➝ Magento Connect ➝ Zarządzanie Magento Connect [Magento Connect Manager]** – wówczas otworzy się nowe okno do administracji modułami Magento;
+
+💡 Zalecamy:
+-	zaznaczyć opcję Put store on the maintenance mode while installing/upgrading/backup creation;
+-	utworzyć kopię zapasową, zaznaczając opcję Create Backup.
+
+2.	znajdź paczkę **BlueMedia_Payment** w sekcji **Manage Existing Extenstions**, wybierz z rozwijanej listy **Uninstall** i kliknij **Commit Changes**, żeby zatwierdzić zmianę.
+
+![Odinstalowanie](https://user-images.githubusercontent.com/87177993/126792093-b6f87179-9269-4714-a036-7c256c10b0ea.png)
+
+3.	Zobaczysz wówczas komunikat potwierdzający odinstalowanie modułu. Treść **Package Deleted** oznacza poprawne zakończenie procesu. W przypadku niepowodzenia – odinstaluj moduł ręcznie.
+
+![Package Deleted](https://user-images.githubusercontent.com/87177993/126792281-34e5435f-e0e5-452e-897b-f3345cafb2fa.png)
+
+### W przypadku ręcznej instalacji
+Żeby odinstalować moduł BluePayment wejdź do głównego katalogu Magento i usuń z niego następujące
+1.	katalogi:
+-	app/code/community/BlueMedia/
+-	app/design/frontend/base/default/template/bluepayment/
+-	js/bluepayment
+2.	pliki:
+-	app/design/adminhtml/default/default/layout/bluepayment.xml
+-	app/design/frontend/base/default/layout/bluepayment.xml
+-	app/etc/modules/BlueMedia_BluePayment.xml
+-	app/locale/pl_PL/BlueMedia_BluePayment.csv
+-	skin/frontend/base/default/images/bluepayment/logo.png
+ 
+💡 Opcjonalnie możesz wykonać następujące zapytania do bazy:
+-	DROP TABLE `blue_cards`;
+-	DROP TABLE `blue_gateways`;
+-	DELETE FROM `core_resource` WHERE `code` ="bluepayment_setup";
+
+Żeby całkowicie usunąć konfigurację modułu, wykonaj następujące zapytanie do do bazy danych:
+
+FROM`core_config_data`WHERE`path`LIKE'payment/bluepayment%';
+
