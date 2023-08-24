@@ -121,11 +121,11 @@
     <adminhtml>
         <menu>
             <bluepayment module="bluepayment">
-                <title>BluePayment</title>
+                <title>Autopay</title>
                 <sort_order>100</sort_order>
                 <children>
                     <bluegateways module="bluepayment">
-                        <title>Manage Bluegateways</title>
+                        <title>Manage Gateways</title>
                         <sort_order>0</sort_order>
                         <action>admin_bluepayment/adminhtml_bluegateways</action>
                     </bluegateways>
@@ -140,11 +140,11 @@
                 <admin>
                     <children>
                         <bluepayment translate="title" module="bluepayment">
-                            <title>BluePayment</title>
+                            <title>Autopay</title>
                             <sort_order>1000</sort_order>
                             <children>
                                 <bluegateways translate="title">
-                                    <title>Manage Bluegateways</title>
+                                    <title>Manage Gateways</title>
                                     <sort_order>0</sort_order>
                                 </bluegateways>
                             </children>
@@ -176,19 +176,19 @@
                 <active>0</active>
                 <model>bluepayment/abstract</model>
                 <encoding>UTF</encoding>
-                <title>Online payment BM</title>
+                <title>Online payment Autopay</title>
                 <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>
-                <test_address_url>https://pay-accept.bm.pl/payment</test_address_url>
-                <prod_address_url>https://pay.bm.pl/payment</prod_address_url>
-                <test_address_gateways_url>https://pay-accept.bm.pl/paywayList</test_address_gateways_url>
-                <prod_address_gateways_url>https://pay.bm.pl/paywayList</prod_address_gateways_url>
-                <test_address_delete_card_url>https://pay-accept.bm.pl/deactivate_recurring</test_address_delete_card_url>
-                <prod_address_delete_card_url>https://pay.bm.pl/deactivate_recurring</prod_address_delete_card_url>
-                <test_address_gpay_merchant_info_url>https://pay-accept.bm.pl/webapi/googlePayMerchantInfo</test_address_gpay_merchant_info_url>
-                <prod_address_gpay_merchant_info_url>https://pay.bm.pl/webapi/googlePayMerchantInfo</prod_address_gpay_merchant_info_url>
-                <test_address_regulations_url>https://pay-accept.bm.pl/webapi/regulationsGet</test_address_regulations_url>
-                <prod_address_regulations_url>https://pay.bm.pl/webapi/regulationsGet</prod_address_regulations_url>
+                <test_address_url>https://testpay.autopay.eu/payment</test_address_url>
+                <prod_address_url>https://pay.autopay.eu/payment</prod_address_url>
+                <test_address_gateways_url>https://testpay.autopay.eu/paywayList</test_address_gateways_url>
+                <prod_address_gateways_url>https://pay.autopay.eu/paywayList</prod_address_gateways_url>
+                <test_address_delete_card_url>https://testpay.autopay.eu/deactivate_recurring</test_address_delete_card_url>
+                <prod_address_delete_card_url>https://pay.autopay.eu/deactivate_recurring</prod_address_delete_card_url>
+                <test_address_gpay_merchant_info_url>https://testpay.autopay.eu/webapi/googlePayMerchantInfo</test_address_gpay_merchant_info_url>
+                <prod_address_gpay_merchant_info_url>https://pay.autopay.eu/webapi/googlePayMerchantInfo</prod_address_gpay_merchant_info_url>
+                <test_address_regulations_url>https://testpay.autopay.eu/webapi/regulationsGet</test_address_regulations_url>
+                <prod_address_regulations_url>https://pay.autopay.eu/webapi/regulationsGet</prod_address_regulations_url>
                 <hash_algorithm>sha256</hash_algorithm>
                 <hash_separator>|</hash_separator>
                 <autopay_gateway>1503</autopay_gateway>
@@ -198,7 +198,7 @@
                 <addjquery>1</addjquery>
                 <makeinvoice>0</makeinvoice>
                 <iframe_payment>0</iframe_payment>
-                <info_text>Po złożeniu zamówienia zostaniesz przekierowany do bezpiecznego serwisu płatności Blue Media.</info_text>
+                <info_text>Po złożeniu zamówienia zostaniesz przekierowany do bezpiecznego serwisu płatności Autopay.</info_text>
             </bluepayment>
         </payment>
     </default>

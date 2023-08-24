@@ -11,7 +11,7 @@
         <payment>
             <groups>
                 <bluepayment translate="label" module="bluepayment">
-                    <label>Online payment BM</label>
+                    <label>Online payment Autopay</label>
                     <sort_order>670</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -136,7 +136,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Contact Blue Media before enabling this option. It requires enabled Gateway Selection.</tooltip>
+                            <tooltip>Contact Autopay before enabling this option. It requires enabled Gateway Selection.</tooltip>
                         </auto_payments>
                         <info_text translate="label">
                             <label>Payment description</label>
@@ -145,12 +145,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <tooltip>Visible in order process after selecting BM payment.</tooltip>
+                            <tooltip>Visible in order process after selecting Autopay payment.</tooltip>
                         </info_text>
                     </fields>
                 </bluepayment>
                 <bluepayment_pln translate="label" module="bluepayment">
-                    <label>Online payment BM (PLN)</label>
+                    <label>Online payment Autopay (PLN)</label>
                     <sort_order>671</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -177,7 +177,7 @@
                     </fields>
                 </bluepayment_pln>
                 <bluepayment_eur translate="label" module="bluepayment">
-                    <label>Online payment BM (EUR)</label>
+                    <label>Online payment Autopay (EUR)</label>
                     <sort_order>672</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -204,7 +204,7 @@
                     </fields>
                 </bluepayment_eur>
                 <bluepayment_gbp translate="label" module="bluepayment">
-                    <label>Online payment BM (GBP)</label>
+                    <label>Online payment Autopay (GBP)</label>
                     <sort_order>673</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -231,7 +231,7 @@
                     </fields>
                 </bluepayment_gbp>
                 <bluepayment_usd translate="label" module="bluepayment">
-                    <label>Online payment BM (USD)</label>
+                    <label>Online payment Autopay (USD)</label>
                     <sort_order>674</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -258,7 +258,7 @@
                     </fields>
                 </bluepayment_usd>
                 <bluepayment_czk translate="label" module="bluepayment">
-                    <label>Online payment BM (CZK)</label>
+                    <label>Online payment Autopay (CZK)</label>
                     <sort_order>675</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>

@@ -77,9 +77,8 @@ class BlueMedia_BluePayment_Adminhtml_BluegatewaysController extends Mage_Adminh
 
     public function newAction()
     {
-
-        $this->_title($this->__("BluePayment"));
-        $this->_title($this->__("Bluegateways"));
+        $this->_title($this->__("Autopay"));
+        $this->_title($this->__("Gateways"));
         $this->_title($this->__("New Item"));
 
         $id = $this->getRequest()->getParam("id");

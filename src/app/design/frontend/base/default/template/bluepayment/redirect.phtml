@@ -3,7 +3,11 @@
     <body>
             <?php $data = $this->getUrlWithParams(); ?>
             <?php if ($data[0] === true): ?>
-                <script type="text/javascript" src="https://cards.bm.pl/integration/checkout.js"></script>
+                <?php if ($this->isTestMode()): ?>
+                    <script type="text/javascript" src="https://testcards.autopay.eu/integration/checkout.js"></script>
+                <?php else: ?>
+                    <script type="text/javascript" src="https://cards.autopay.eu/integration/checkout.js"></script>
+                <?php endif; ?>
                 <script type="text/javascript">
                     PayBmCheckout.transactionSuccess = function(status) {
                         window.location.href = '<?php echo $data[2]; ?>';

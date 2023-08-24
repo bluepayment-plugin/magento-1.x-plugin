@@ -1,15 +1,15 @@
 <?php
 /**
  * BlueMedia_BluePayment extension
- * 
+ *
  * NOTICE OF LICENSE
- * 
+ *
  * This source file is subject to the MIT License
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/mit-license.php
- * 
- * @category       Blue Media
+ *
+ * @category       Autopay
  * @package        BlueMedia_BluePayment
  * @copyright      Copyright (c) 2015
  * @license        http://opensource.org/licenses/mit-license.php MIT License
@@ -29,7 +29,7 @@ class BlueMedia_BluePayment_Block_Form extends Mage_Payment_Block_Form
     protected function _construct()
     {
         $this->setTemplate('bluepayment/form.phtml');
-        $this->setMethodTitle(Mage::helper('bluepayment')->__('Online payment BM'));
+        $this->setMethodTitle(Mage::helper('bluepayment')->__('Online payment Autopay'));
 
         return parent::_construct();
     }
@@ -41,7 +41,7 @@ class BlueMedia_BluePayment_Block_Form extends Mage_Payment_Block_Form
      */
     public function getLogoSrc()
     {
-        $logoSrc = $this->getSkinUrl('images/bluepayment/logo.png');
+        $logoSrc = $this->getSkinUrl('images/bluepayment/logo.svg');
 
         return $logoSrc != '' ? $logoSrc : false;
     }
