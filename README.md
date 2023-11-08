@@ -19,7 +19,7 @@ Do najważniejszych funkcji modułu zalicza się:
 
 ### Instalacja z użyciem pliku .tgz
 
-1.. Zacznij od [pobrania](https://github.com/bluepayment-plugin/magento-1.x-plugin/archive/refs/heads/master.zip) najnowszej wersji modułu Autopay dla platformy Magento.
+1. Zacznij od [pobrania](https://github.com/bluepayment-plugin/magento-1.x-plugin/archive/refs/heads/master.zip) najnowszej wersji modułu Autopay dla platformy Magento.
 2. Następnie zaloguj się do panelu administracyjnego Magento. 
 3. Wybierz z głównego menu **System ➝ Magento Connect ➝ Zarządzanie Magento Connect [Magento Connect Manager]**, a otworzy się nowe okno do administracji modułów Magento.
 
