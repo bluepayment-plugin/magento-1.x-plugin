@@ -65,7 +65,7 @@ Po wykonaniu tego kroku wtyczka jesy gotowa do użycia i możesz przejść do je
 
 ### Wyświetlanie kanałów płatności w serwisie
 
-Moduł Autopay umożliwia klientowi wybór kanału płatności bezpośrednio na stronie sklepu – bez przekierowywania na stronie Blue Media. Żeby aktywować tę funkcję, wykonaj następujące kroki:
+Moduł Autopay umożliwia klientowi wybór kanału płatności bezpośrednio na stronie sklepu – bez przekierowywania na stronie Autopay. Żeby aktywować tę funkcję, wykonaj następujące kroki:
 1.	Przejdź do strony konfiguracji modułu.
 2.	Otwórz zakładkę **Płatności online BM (Online payment BM]** i przy Wyborze kanałów płatności **[Gateway Selection]** zaznacz **Tak [Yes]**.
 3.	Jeżeli chcesz, żeby przy kanale płatności było widoczne logo, zaznacz **Tak [Yes]** przy funkcji **Pokaż logo kanałów płatności [Show Gateway Logo]**.
